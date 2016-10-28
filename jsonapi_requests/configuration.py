@@ -17,3 +17,7 @@ class Configuration:
     @property
     def TIMEOUT(self):
         return self._config_dict.get('TIMEOUT', 1)
+
+    @property
+    def APPEND_SLASH(self):
+        return self._config_dict.get('APPEND_SLASH', True)

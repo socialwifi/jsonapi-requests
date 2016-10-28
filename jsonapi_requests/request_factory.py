@@ -51,16 +51,22 @@ class ApiRequestFactory:
         return self.request(api_path, 'PATCH', **kwargs)
 
     def request(self, api_path, method, *, object=None, **kwargs):
-        absolute_url = parse.urljoin(self.config.API_ROOT, api_path)
+        url = self._build_absolute_url(api_path)
         if object is not None:
             assert 'json' not in kwargs
             kwargs['json'] = {'data': object.as_data()}
         try:
-            response = self._request(absolute_url, method, **kwargs)
+            response = self._request(url, method, **kwargs)
         except (requests.ConnectionError, requests.Timeout):
             raise ApiConnectionError
         else:
             return self._parse_response(response)
+
+    def _build_absolute_url(self, api_path):
+        url = parse.urljoin(self.config.API_ROOT, api_path)
+        if self.config.APPEND_SLASH and not url.endswith('/'):
+            url += '/'
+        return url
 
     def _request(self, absolute_url, method, **kwargs):
         options = self.default_options
