@@ -22,7 +22,10 @@ class Factory:
 
     @property
     def API_ROOT(self):
-        return self._config_dict['API_ROOT']
+        url = self._config_dict['API_ROOT']
+        if not url.endswith('/'):
+            url += '/'
+        return url
 
     @property
     def AUTH(self):
