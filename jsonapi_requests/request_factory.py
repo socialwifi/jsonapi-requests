@@ -63,9 +63,19 @@ class ApiRequestFactory:
             return self._parse_response(response)
 
     def _request(self, absolute_url, method, **kwargs):
-        options = self.configured_options
+        options = self.default_options
+        options.update(self.configured_options)
         options.update(kwargs)
         return requests.request(method, absolute_url, **options)
+
+    @property
+    def default_options(self):
+        return {
+            'headers': {
+                'Content-Type': 'application/vnd.api+json',
+                'Accept': 'application/vnd.api+json',
+            }
+        }
 
     @property
     def configured_options(self):
