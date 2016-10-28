@@ -13,7 +13,7 @@ class Api:
                 if setting.isupper():
                     config_dict[setting] = getattr(dict_or_config, setting)
         config_dict.update(kwargs)
-        return cls(configuration.Configuration(config_dict))
+        return cls(configuration.Factory(config_dict).create())
 
     def __init__(self, config: configuration.Configuration):
         self.requests = request_factory.ApiRequestFactory(config)
