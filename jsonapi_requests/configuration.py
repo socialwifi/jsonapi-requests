@@ -1,10 +1,31 @@
-class Configuration:
+from collections import namedtuple
+
+
+Configuration = namedtuple(
+    'Configuration',
+    ['API_ROOT', 'AUTH', 'VALIDATE_SSL', 'TIMEOUT', 'APPEND_SLASH']
+)
+
+
+class Factory:
     def __init__(self, config_dict):
         self._config_dict = config_dict
 
+    def create(self) -> Configuration:
+        return Configuration(
+            API_ROOT=self.API_ROOT,
+            AUTH=self.AUTH,
+            VALIDATE_SSL=self.VALIDATE_SSL,
+            TIMEOUT=self.TIMEOUT,
+            APPEND_SLASH=self.APPEND_SLASH,
+        )
+
     @property
     def API_ROOT(self):
-        return self._config_dict['API_ROOT']
+        url = self._config_dict['API_ROOT']
+        if not url.endswith('/'):
+            url += '/'
+        return url
 
     @property
     def AUTH(self):
