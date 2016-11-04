@@ -1,7 +1,7 @@
 Changelog for kubepy
 =================
 
-0.1 (unreleased)
+0.1 (2016-11-04)
 ----------------
 
 - Append slash to API root if needed. ([#2](https://github.com/socialwifi/jsonapi-requests/pull/2))
