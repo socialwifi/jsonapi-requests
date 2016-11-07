@@ -15,6 +15,12 @@ class JsonApiObject:
         self.relationships = relationships
         self.links = links
 
+    def __eq__(self, other):
+        try:
+            return self.as_data() == other.as_data()
+        except AttributeError:
+            return False
+
     @classmethod
     def from_data(cls, data):
         filtered = {}
