@@ -6,13 +6,13 @@ from jsonapi_requests import configuration
 
 
 class JsonApiObject:
-    meta_fields = ['type', 'id', 'attributes', 'relations', 'links']
+    meta_fields = ['type', 'id', 'attributes', 'relationships', 'links']
 
-    def __init__(self, *, type=None, id=None, attributes=None, relations=None, links=None):
+    def __init__(self, *, type=None, id=None, attributes=None, relationships=None, links=None):
         self.type = type
         self.id = id
         self.attributes = attributes
-        self.relations = relations
+        self.relationships = relationships
         self.links = links
 
     @classmethod
