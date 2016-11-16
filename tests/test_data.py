@@ -1,9 +1,10 @@
+import jsonapi_requests.data
 from jsonapi_requests import request_factory
 
 
 class TestJsonApiResponse:
     def test_keeps_example(self):
-        assert request_factory.JsonApiResponse.from_data(example_response).as_data() == example_response
+        assert jsonapi_requests.data.JsonApiResponse.from_data(example_response).as_data() == example_response
 
 example_response = {
   "links": {
