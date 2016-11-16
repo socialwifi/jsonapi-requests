@@ -12,6 +12,8 @@ setup(
     url='https://github.com/socialwifi/jsonapi-requests',
     packages=['jsonapi_requests'],
     install_requires=[str(ir.req) for ir in parse_requirements('base_requirements.txt', session=False)],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     license='BSD',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
