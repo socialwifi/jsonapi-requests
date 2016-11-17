@@ -3,38 +3,7 @@ from urllib import parse
 import requests
 
 from jsonapi_requests import configuration
-
-
-class JsonApiObject:
-    meta_fields = ['type', 'id', 'attributes', 'relationships', 'links']
-
-    def __init__(self, *, type=None, id=None, attributes=None, relationships=None, links=None):
-        self.type = type
-        self.id = id
-        self.attributes = attributes
-        self.relationships = relationships
-        self.links = links
-
-    def __eq__(self, other):
-        try:
-            return self.as_data() == other.as_data()
-        except AttributeError:
-            return False
-
-    @classmethod
-    def from_data(cls, data):
-        filtered = {}
-        for field in cls.meta_fields:
-            filtered[field] = data.get(field)
-        return cls(**filtered)
-
-    def as_data(self):
-        data = {}
-        for field in self.meta_fields:
-            value = getattr(self, field)
-            if value is not None:
-                data[field] = value
-        return data
+from jsonapi_requests import data
 
 
 class ApiRequestFactory:
@@ -56,7 +25,7 @@ class ApiRequestFactory:
     def patch(self, api_path, **kwargs):
         return self.request(api_path, 'PATCH', **kwargs)
 
-    def request(self, api_path, method, *, object=None, **kwargs):
+    def request(self, api_path, method, *, object:data.JsonApiObject=None, **kwargs):
         url = self._build_absolute_url(api_path)
         if object is not None:
             assert 'json' not in kwargs
@@ -118,19 +87,15 @@ class ApiResponse:
 
     @property
     def data(self):
-        if isinstance(self.raw_data, list):
-            return [
-                JsonApiObject.from_data(instance) for instance in self.raw_data
-            ]
+        data = self.content.data
+        if data is None:
+            return {}
         else:
-            return JsonApiObject.from_data(self.raw_data)
+            return data
 
     @property
-    def raw_data(self):
-        if 'data' in self.payload:
-            return self.payload['data']
-        else:
-            return {}
+    def content(self):
+        return data.JsonApiResponse.from_data(self.payload)
 
     def __repr__(self):
         return '<ApiResponse({})>'.format(self.payload)

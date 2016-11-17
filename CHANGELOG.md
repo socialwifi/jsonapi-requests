@@ -1,10 +1,11 @@
-Changelog for kubepy
+Changelog for jsonapi-requests
 =================
 
 0.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added more parsers and serializers.
+- Added pytest tests.
 
 
 0.1 (2016-11-04)
