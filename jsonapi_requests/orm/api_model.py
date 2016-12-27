@@ -9,24 +9,45 @@ class JsonApiObjectStub:
 
 
 class ApiModelMetaclass(type):
-    def __new__(mcs, name, args, kwargs):
-        klass = super().__new__(mcs, name, args, kwargs)
-        if 'Meta' in kwargs:
-            klass._options = Options(kwargs['Meta'])
-        return klass
+    def __init__(cls, name, bases, attrs, **kwargs):
+        super().__init__(name, bases, attrs, **kwargs)
+        cls._options = OptionsFactory(cls, attrs).get()
+        return cls
 
 
-class Options:
-    def __init__(self, meta):
-        self.meta = meta
+class OptionsFactory:
+    def __init__(self, klass, klass_attrs):
+        self.klass = klass
+        self.klass_attrs = klass_attrs
+
+    def get(self):
+        return Options(type=self.type, api=self.api)
 
     @property
     def type(self):
-        return getattr(self.meta, 'type', None)
+        return self.get_setting('type')
 
     @property
     def api(self):
-        return getattr(self.meta, 'api', None)
+        return self.get_setting('api')
+
+    def get_setting(self, setting_name):
+        return getattr(self.meta, setting_name, getattr(self.previous_options, setting_name, None))
+
+    @property
+    def meta(self):
+        return self.klass_attrs.get('Meta')
+
+
+    @property
+    def previous_options(self):
+        return getattr(self.klass, '_options', None)
+
+
+class Options:
+    def __init__(self, type, api):
+        self.type = type
+        self.api = api
 
 
 class ApiModel(metaclass=ApiModelMetaclass):
@@ -59,4 +80,4 @@ class ApiModel(metaclass=ApiModelMetaclass):
     def endpoint(self):
         return self._options.api.endpoint('{}/{}/'.format(self._options.type, self.id))
 
-    _options = Options(None)
+    _options = Options(None, None)
