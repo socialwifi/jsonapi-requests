@@ -1,4 +1,4 @@
-from jsonapi_requests import base, data
+from jsonapi_requests.orm import fields as orm_fields
 
 
 class JsonApiObjectStub:
@@ -21,7 +21,7 @@ class OptionsFactory:
         self.klass_attrs = klass_attrs
 
     def get(self):
-        return Options(type=self.type, api=self.api)
+        return Options(type=self.type, api=self.api, fields=self.fields)
 
     @property
     def type(self):
@@ -38,6 +38,13 @@ class OptionsFactory:
     def meta(self):
         return self.klass_attrs.get('Meta')
 
+    @property
+    def fields(self):
+        fields = getattr(self.previous_options, 'fields', {}).copy()
+        for name, value in self.klass_attrs.items():
+            if isinstance(value, orm_fields.BaseField):
+                fields[name] = value
+        return fields
 
     @property
     def previous_options(self):
@@ -45,9 +52,10 @@ class OptionsFactory:
 
 
 class Options:
-    def __init__(self, type, api):
+    def __init__(self, type, api, fields):
         self.type = type
         self.api = api
+        self.fields = fields
 
 
 class ApiModel(metaclass=ApiModelMetaclass):
@@ -80,4 +88,4 @@ class ApiModel(metaclass=ApiModelMetaclass):
     def endpoint(self):
         return self._options.api.endpoint('{}/{}/'.format(self._options.type, self.id))
 
-    _options = Options(None, None)
+    _options = Options(None, None, {})

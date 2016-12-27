@@ -16,9 +16,9 @@ class TestApiModel:
             class Meta:
                 api = mock_api
                 type = 'test'
+            name = orm.AttributeField(source='name')
 
         test = Test.from_id('123')
         test.refresh()
         mock_api.endpoint.assert_called_with('test/123/')
-        assert test.attributes['name'] == 'alice'
-
+        assert test.name == 'alice'
