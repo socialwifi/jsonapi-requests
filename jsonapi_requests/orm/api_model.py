@@ -1,4 +1,6 @@
+from jsonapi_requests import data
 from jsonapi_requests.orm import fields as orm_fields
+from jsonapi_requests.orm import registry
 
 
 class JsonApiObjectStub:
@@ -63,10 +65,18 @@ class Options:
 class ApiModel(metaclass=ApiModelMetaclass):
     def __init__(self, raw_object):
         self.raw_object = raw_object
+        self.relationship_cache = {}
 
     @classmethod
     def from_id(cls, id):
         return cls(raw_object=JsonApiObjectStub(id))
+
+    @property
+    def type(self):
+        if not self.is_stub:
+            return self.raw_object.type
+        else:
+            return self._options.type
 
     @property
     def is_stub(self):
@@ -82,9 +92,28 @@ class ApiModel(metaclass=ApiModelMetaclass):
             else:
                 raise
 
+    def as_relationship(self):
+        return data.Relationship(data=data.ResourceIdentifier(type=self.type, id=self.id))
+
     def refresh(self):
-        response = self.endpoint.get()
-        self.raw_object = response.data
+        api_response = self.endpoint.get()
+        self.raw_object = api_response.content.data
+        self.populate_related(api_response.content)
+
+    def populate_related(self, response):
+        object_map = self._get_included_object_map_from_response(response)
+        object_map[registry.ObjectKey(type=self._options.type, id=self.id)] = self
+        for object in object_map.values():
+            object._set_related_fields(object_map)
+
+    def _set_related_fields(self, object_map):
+        for field in self._options.fields.values():
+            if hasattr(field, 'set_related'):
+                field.set_related(self, object_map)
+
+    def _get_included_object_map_from_response(self, response):
+        object_map = self._options.api.type_registry.get_mapped_orm_objects(response.included or [])
+        return object_map
 
     @property
     def endpoint(self):
