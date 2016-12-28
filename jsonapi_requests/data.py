@@ -102,22 +102,16 @@ class Record(AbstractValue):
         return data
 
 
-class JsonApiObject(Record):
+class ResourceIdentifier(Record):
     schema = {
         'type': Scalar,
         'id': Scalar,
-        'attributes': Dictionary,
-        'relationships': Dictionary,
-        'links': Dictionary,
     }
 
     # noinspection PyMissingConstructor
-    def __init__(self, *, type=None, id=None, attributes=None, relationships=None, links=None):
+    def __init__(self, *, type=None, id=None):
         self.type = type
         self.id = id
-        self.attributes = attributes
-        self.relationships = relationships
-        self.links = links
 
 
 class SchemaAlternativeWrapper:
@@ -133,6 +127,36 @@ class SchemaAlternativeWrapper:
                 exception = e
         if exception:
             raise exception
+
+
+class Relationship(Record):
+    schema = {
+        'data': SchemaAlternativeWrapper(make_collection(List, ResourceIdentifier), ResourceIdentifier),
+        'links': Dictionary,
+    }
+
+    # noinspection PyMissingConstructor
+    def __init__(self, *, data=None, links=None):
+        self.data = data
+        self.links = links
+
+
+class JsonApiObject(Record):
+    schema = {
+        'type': Scalar,
+        'id': Scalar,
+        'attributes': Dictionary,
+        'relationships': make_collection(Dictionary, Relationship),
+        'links': Dictionary,
+    }
+
+    # noinspection PyMissingConstructor
+    def __init__(self, *, type=None, id=None, attributes=None, relationships=None, links=None):
+        self.type = type
+        self.id = id
+        self.attributes = attributes
+        self.relationships = relationships
+        self.links = links
 
 
 class JsonApiResponse(Record):
