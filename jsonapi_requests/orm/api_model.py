@@ -71,6 +71,12 @@ class ApiModel(metaclass=ApiModelMetaclass):
     def from_id(cls, id):
         return cls(raw_object=JsonApiObjectStub(id))
 
+    @classmethod
+    def from_response_content(cls, jsonapi_response):
+        new = cls(raw_object=jsonapi_response.data)
+        new._populate_related(jsonapi_response)
+        return new
+
     @property
     def type(self):
         if not self.is_stub:
@@ -97,10 +103,11 @@ class ApiModel(metaclass=ApiModelMetaclass):
 
     def refresh(self):
         api_response = self.endpoint.get()
-        self.raw_object = api_response.content.data
-        self.populate_related(api_response.content)
+        jsonapi_response = api_response.content
+        self.raw_object = jsonapi_response.data
+        self._populate_related(jsonapi_response)
 
-    def populate_related(self, response):
+    def _populate_related(self, response):
         object_map = self._get_included_object_map_from_response(response)
         object_map[registry.ObjectKey(type=self._options.type, id=self.id)] = self
         for object in object_map.values():
