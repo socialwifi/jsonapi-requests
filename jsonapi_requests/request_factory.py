@@ -70,6 +70,8 @@ class ApiRequestFactory:
     def _parse_response(self, response):
         if response.status_code >= 500:
             raise ApiInternalServerError(response.status_code, response.content)
+        elif response.status_code == 204:
+            return ApiResponse(response.status_code, {})
         elif 400 <= response.status_code < 500:
             raise ApiClientError(response.status_code, response.content)
         try:
