@@ -35,7 +35,7 @@ class ApiRequestFactory:
         except (requests.ConnectionError, requests.Timeout):
             raise ApiConnectionError
         else:
-            return self._parse_response(response, method)
+            return self._parse_response(response)
 
     def _build_absolute_url(self, api_path):
         url = parse.urljoin(self.config.API_ROOT, api_path)
@@ -67,10 +67,10 @@ class ApiRequestFactory:
             options['timeout'] = self.config.TIMEOUT
         return options
 
-    def _parse_response(self, response, method):
+    def _parse_response(self, response):
         if response.status_code >= 500:
             raise ApiInternalServerError(response.status_code, response.content)
-        elif method == 'DELETE' and response.status_code == 204:
+        elif response.status_code == 204:
             return ApiResponse(response.status_code, {})
         elif 400 <= response.status_code < 500:
             raise ApiClientError(response.status_code, response.content)
