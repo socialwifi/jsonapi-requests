@@ -1,3 +1,5 @@
+import pytest
+
 import jsonapi_requests.data
 from jsonapi_requests import request_factory
 
@@ -5,6 +7,44 @@ from jsonapi_requests import request_factory
 class TestJsonApiResponse:
     def test_keeps_example(self):
         assert jsonapi_requests.data.JsonApiResponse.from_data(example_response).as_data() == example_response
+
+    def test_links_always_present_in_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data({})
+        parsed.links['xxx'] = 'fake'
+        assert parsed.as_data() == {'links': {'xxx': 'fake'}}
+
+    def test_add_object_to_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data({'data': []})
+        parsed.data.append({'id': '1', 'type': 'x'})
+        assert parsed.as_data() == {'data': [{'id': '1', 'type': 'x'}]}
+
+    def test_remove_object_from_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data({'data': [{'id': '1', 'type': 'x'}]})
+        del parsed.data[0]
+        assert parsed.as_data() == {'data': []}
+
+    def test_add_included_object_to_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data({'included': [{'id': '1', 'type': 'x'}]})
+        del parsed.included[0]
+        assert parsed.as_data() == {}
+
+    def test_remove_included_object_from_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data({})
+        parsed.included.append({'id': '1', 'type': 'x'})
+        assert parsed.as_data() == {'included': [{'id': '1', 'type': 'x'}]}
+
+    def test_add_relationship_to_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data({})
+        parsed.data.relationships['chicken'] = {'data': {'type': 'chicken', 'id': '2'}}
+        assert parsed.as_data() == {'data': {'relationships': {'chicken': {'data': {'type': 'chicken', 'id': '2'}}}}}
+
+    def test_remove_relationship_from_parsed_response(self):
+        parsed = jsonapi_requests.data.JsonApiResponse.from_data(
+          {'data': {'relationships': {'chicken': {'data': {'type': 'chicken', 'id': '2'}}}}}
+        )
+        del parsed.data.relationships['chicken']
+        assert parsed.as_data() == {}
+
 
 example_response = {
   "links": {

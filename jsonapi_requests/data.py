@@ -1,6 +1,7 @@
-def make_collection(collection_type, element_type):
+def make_collection(collection_type, element_type, allow_empty_data=False):
     class DynamicCollection(collection_type):
         type = element_type
+        allow_empty = allow_empty_data
 
     return DynamicCollection
 
@@ -9,12 +10,7 @@ def as_data(value):
     if hasattr(value, 'as_data'):
         return value.as_data()
     else:
-        if isinstance(value, list):
-            return List(value).as_data()
-        elif isinstance(value, dict):
-            return Dictionary(value).as_data()
-        else:
-            return Scalar(value).as_data()
+        return value
 
 
 class AbstractValue:
@@ -31,6 +27,10 @@ class AbstractValue:
         except AttributeError:
             return False
 
+    @classmethod
+    def allow_as_data(cls, data):
+        return bool(data)
+
 
 class Scalar(AbstractValue):
     def __init__(self, data):
@@ -44,11 +44,20 @@ class Scalar(AbstractValue):
         return self.data
 
 
-class List(AbstractValue, list):
+class AbstractCollectionValue(AbstractValue):
     type = Scalar
+    allow_empty = False
 
     @classmethod
+    def allow_as_data(cls, value):
+        return bool(value) or cls.allow_empty
+
+
+class List(AbstractCollectionValue, list):
+    @classmethod
     def from_data(cls, data):
+        if data is None:
+            return cls()
         if not hasattr(data, '__iter__'):
             raise CantLoadData
         return cls([cls.type.from_data(element) for element in data])
@@ -57,11 +66,11 @@ class List(AbstractValue, list):
         return [as_data(element) for element in self]
 
 
-class Dictionary(AbstractValue, dict):
-    type = Scalar
-
+class Dictionary(AbstractCollectionValue, dict):
     @classmethod
     def from_data(cls, data):
+        if data is None:
+            return cls()
         if not hasattr(data, 'items'):
             raise CantLoadData
         return cls({key: cls.type.from_data(element) for key, element in data.items()})
@@ -83,22 +92,22 @@ class Record(AbstractValue):
 
     @classmethod
     def from_data(cls, data):
+        if data is None:
+            data = {}
         if not hasattr(data, 'get'):
             raise CantLoadData
         fields = {}
         for field, field_class in cls.get_schema().items():
             field_data = data.get(field)
-            if field_data is not None:
-                fields[field] = field_class.from_data(field_data)
-
+            fields[field] = field_class.from_data(field_data)
         return cls(**fields)
 
     def as_data(self):
         data = {}
-        for field in self.get_schema():
-            value = getattr(self, field)
-            if value is not None:
-                data[field] = as_data(value)
+        for field, type in self.get_schema().items():
+            value = as_data(getattr(self, field))
+            if type.allow_as_data(value):
+                data[field] = value
         return data
 
 
@@ -119,19 +128,28 @@ class SchemaAlternativeWrapper:
         self.types = types
 
     def from_data(self, data):
+        return self.get_type(data).from_data(data)
+
+    def allow_as_data(self, data):
+        return self.get_type(data).allow_as_data(data)
+
+    def get_type(self, data):
         exception = None
         for type in self.types:
             try:
-                return type.from_data(data)
+                type.from_data(data)
             except CantLoadData as e:
                 exception = e
+            else:
+                return type
         if exception:
             raise exception
 
 
 class Relationship(Record):
     schema = {
-        'data': SchemaAlternativeWrapper(make_collection(List, ResourceIdentifier), ResourceIdentifier),
+        'data': SchemaAlternativeWrapper(
+            ResourceIdentifier, make_collection(List, ResourceIdentifier, allow_empty_data=True)),
         'links': Dictionary,
     }
 
@@ -161,7 +179,7 @@ class JsonApiObject(Record):
 
 class JsonApiResponse(Record):
     schema = {
-        'data': SchemaAlternativeWrapper(make_collection(List, JsonApiObject), JsonApiObject),
+        'data': SchemaAlternativeWrapper(JsonApiObject, make_collection(List, JsonApiObject, allow_empty_data=True)),
         'errors': List,
         'meta': Scalar,
         'jsonapi': Scalar,
