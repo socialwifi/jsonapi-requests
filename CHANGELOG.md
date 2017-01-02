@@ -4,8 +4,10 @@ Changelog for jsonapi-requests
 0.2.0 (unreleased)
 ------------------
 
+- Added basic orm. ([#11](https://github.com/socialwifi/jsonapi-requests/pull/11))
 - Added more parsers and serializers.
 - Added pytest tests.
+- Fix handling response 204 "No content" ([#10](https://github.com/socialwifi/jsonapi-requests/pull/10))
 
 
 0.1 (2016-11-04)
