@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.2.0 (unreleased)
+0.2.0 (2017-01-02)
 ------------------
 
 - Added basic orm. ([#11](https://github.com/socialwifi/jsonapi-requests/pull/11))
