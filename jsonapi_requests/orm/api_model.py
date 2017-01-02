@@ -11,8 +11,10 @@ class JsonApiObjectStub:
 class ApiModelMetaclass(type):
     def __init__(cls, name, bases, attrs, **kwargs):
         super().__init__(name, bases, attrs, **kwargs)
-        cls._options = OptionsFactory(cls, attrs).get()
-        return cls
+        options = OptionsFactory(cls, attrs).get()
+        cls._options = options
+        if options.api and options.type:
+            options.api.type_registry.register(cls)
 
 
 class OptionsFactory:
