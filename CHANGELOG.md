@@ -4,7 +4,8 @@ Changelog for jsonapi-requests
 0.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added RETRIES configuration (default 3)
+- Added retrying requests when there is network or server side problem.
 
 
 0.2.0 (2017-01-02)
