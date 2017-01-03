@@ -30,12 +30,8 @@ class ApiRequestFactory:
         if object is not None:
             assert 'json' not in kwargs
             kwargs['json'] = {'data': object.as_data()}
-        try:
-            response = self._request(url, method, **kwargs)
-        except (requests.ConnectionError, requests.Timeout):
-            raise ApiConnectionError
-        else:
-            return self._parse_response(response)
+        response = self._request(url, method, **kwargs)
+        return self._parse_response(response)
 
     def _build_absolute_url(self, api_path):
         url = parse.urljoin(self.config.API_ROOT, api_path)
@@ -47,7 +43,10 @@ class ApiRequestFactory:
         options = self.default_options
         options.update(self.configured_options)
         options.update(kwargs)
-        return requests.request(method, absolute_url, **options)
+        try:
+            return requests.request(method, absolute_url, **options)
+        except (requests.ConnectionError, requests.Timeout):
+            raise ApiConnectionError
 
     @property
     def default_options(self):
