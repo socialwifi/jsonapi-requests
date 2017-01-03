@@ -1,6 +1,7 @@
 from urllib import parse
 
 import requests
+import tenacity
 
 from jsonapi_requests import configuration
 from jsonapi_requests import data
@@ -30,8 +31,19 @@ class ApiRequestFactory:
         if object is not None:
             assert 'json' not in kwargs
             kwargs['json'] = {'data': object.as_data()}
-        response = self._request(url, method, **kwargs)
-        return self._parse_response(response)
+        return self.retrying.call(self._request, url, method, **kwargs)
+
+    @property
+    def retrying(self):
+        retry_condition = (
+            tenacity.retry_if_exception_type(ApiConnectionError)
+            | tenacity.retry_if_exception_type(ApiInternalServerError)
+        )
+        return tenacity.Retrying(
+            reraise=True,
+            retry=retry_condition,
+            stop=tenacity.stop_after_attempt(self.config.RETRIES)
+        )
 
     def _build_absolute_url(self, api_path):
         url = parse.urljoin(self.config.API_ROOT, api_path)
@@ -44,9 +56,11 @@ class ApiRequestFactory:
         options.update(self.configured_options)
         options.update(kwargs)
         try:
-            return requests.request(method, absolute_url, **options)
+            response = requests.request(method, absolute_url, **options)
         except (requests.ConnectionError, requests.Timeout):
             raise ApiConnectionError
+        else:
+            return self._parse_response(response)
 
     @property
     def default_options(self):
