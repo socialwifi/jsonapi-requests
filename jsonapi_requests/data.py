@@ -27,6 +27,9 @@ class AbstractValue:
         except AttributeError:
             return False
 
+    def __repr__(self):
+        return '{}.from_data({})'.format(type(self).__name__, self.as_data())
+
     @classmethod
     def allow_as_data(cls, data):
         return bool(data)
