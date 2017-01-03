@@ -4,5 +4,5 @@ python:
   - "3.5"
 install:
   - "pip install -r base_requirements.txt"
-  - "pip install pytest"
+  - "pip install -U pytest==3.0.5"
 script: python -m pytest
