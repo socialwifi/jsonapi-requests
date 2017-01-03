@@ -34,3 +34,72 @@ Python client implementation for json api. http://jsonapi.org/
         attributes={'uuid': '09d3a4fff8d64335a1ee9f1d9d054161', 'domain': 'some.domain.pl'},
         type='cookies'))
     Out[7]: <ApiResponse({'data': {'id': '81', 'attributes': {'uuid': '09d3a4fff8d64335a1ee9f1d9d054161', 'domain': 'some.domain.pl'}, 'type': 'cookies'}})>
+
+## Orm example
+
+Lets say we have api endpoint: https://localhost/api/2.0/car/2
+which returns
+
+    {
+        'data':{
+            'id': 2,
+            'type': 'car',
+            'attributes': {'color': 'red'},
+            'relationships': {'driver':{'data': {'id': 3, 'type': 'person'}}}
+        },
+        'included':[
+            {
+                'id': 3,
+                'type': 'person',
+                'attributes': {'name': 'Kowalski'},
+                'relationships': {'married-to': {'data': {'id': 4, 'type': 'person'}}}
+            },
+            {
+                'id': 4,
+                'type': 'person',
+                'attributes': {'name': 'Kowalska'},
+                'relationships': {'married-to': {'data': {'id': 3, 'type': 'person'}}}
+            },
+        ]
+    }
+
+Then we can run:
+
+    In [1]: api = jsonapi_requests.orm.OrmApi.config({
+        ...:         ...:     'API_ROOT': 'https://localhost/api/2.0',
+        ...:         ...:     'AUTH': ('basic_auth_login', 'basic_auth_password'),
+        ...:         ...:     'VALIDATE_SSL': False,
+        ...:         ...:     'TIMEOUT': 1,
+        ...:         ...: })
+
+    In [2]: class Person(jsonapi_requests.orm.ApiModel):
+        ...:     class Meta:
+        ...:         type = 'person'
+        ...:         api = api
+        ...:
+        ...:     name = jsonapi_requests.orm.AttributeField('name')
+        ...:     married_to = jsonapi_requests.orm.RelationField('married-to')
+        ...:
+
+    In [3]: class Car(jsonapi_requests.orm.ApiModel):
+        ...:     class Meta:
+        ...:         type = 'car'
+        ...:         api = api
+        ...:
+        ...:     color = jsonapi_requests.orm.AttributeField('color')
+        ...:     driver = jsonapi_requests.orm.RelationField('driver')
+        ...:
+
+    In [4]: car  = Car.from_id(2)
+
+    In [5]: car.color # request happens here
+    Out[5]: 'red'
+
+    In [6]: car.driver.name
+    Out[6]: 'Kowalski'
+
+    In [7]: car.driver.married_to.name
+    Out[7]: 'Kowalska'
+
+    In [7]: car.driver.married_to.married_to.name
+    Out[7]: 'Kowalski'
