@@ -7,6 +7,7 @@ Changelog for jsonapi-requests
 - Added RETRIES configuration (default 3)
 - Added retrying requests when there is network or server side problem.
 - Added Python 3.6 to supported versions.
+- Fixed handling relations with none value.
 
 
 0.2.0 (2017-01-02)
