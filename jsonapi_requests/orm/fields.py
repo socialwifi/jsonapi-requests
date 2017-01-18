@@ -1,6 +1,10 @@
 from jsonapi_requests.orm import registry
 
 
+class ObjectKeyError(Exception):
+    pass
+
+
 class BaseField:
     pass
 
@@ -40,23 +44,33 @@ class RelationField(BaseField):
 
     def get_new_related_object(self, instance):
         try:
-            relationship = instance.relationships[self.source]
-        except KeyError:
+            key = self.get_object_key(instance)
+        except ObjectKeyError:
             return None
         else:
-            data = relationship.data
-            model = instance._options.api.type_registry.get_model(data.type)
-            return model.from_id(data.id)
+            model = instance._options.api.type_registry.get_model(key.type)
+            return model.from_id(key.id)
 
     def set_related(self, instance, object_map):
         try:
-            relationship = instance.relationships[self.source]
-        except KeyError:
+            key = self.get_object_key(instance)
+        except ObjectKeyError:
             pass
         else:
-            key = registry.ObjectKey(type=relationship.data.type, id=relationship.data.id)
             if key in object_map:
                 self.set_cache(instance, object_map[key])
+
+    def get_object_key(self, instance):
+        try:
+            relationship = instance.relationships[self.source]
+        except KeyError:
+            raise ObjectKeyError
+        else:
+            data = relationship.data
+            if data.type is None or data.id is None:
+                raise ObjectKeyError
+            else:
+                return registry.ObjectKey(type=data.type, id=data.id)
 
     def is_in_cache(self, instance):
         return self.source in instance.relationship_cache

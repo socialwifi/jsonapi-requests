@@ -60,3 +60,19 @@ class TestApiModel:
 
         test = Test.from_response_content(response_content)
         assert test.other.name == 'alice'
+
+    def test_from_response_with_relationship_with_none_type(self):
+        response_content = mock.MagicMock(
+            data=mock.Mock(relationships={'other': mock.Mock(data=mock.Mock(id=None, type=None))})
+        )
+        orm_api = orm.OrmApi(None)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            other = orm.RelationField(source='other')
+            name = orm.AttributeField(source='name')
+
+        test = Test.from_response_content(response_content)
+        assert test.other is None
