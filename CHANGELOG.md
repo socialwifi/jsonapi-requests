@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.2.1 (unreleased)
+0.2.1 (2017-02-03)
 ------------------
 
 - Added RETRIES configuration (default 3)
