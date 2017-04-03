@@ -103,3 +103,6 @@ Then we can run:
 
     In [7]: car.driver.married_to.married_to.name
     Out[7]: 'Kowalski'
+
+## Documentation
+For more documentation check our [wiki](https://github.com/socialwifi/jsonapi-requests/wiki).
