@@ -76,3 +76,23 @@ class TestApiModel:
 
         test = Test.from_response_content(response_content)
         assert test.other is None
+
+    def test_issue_19_attributes_are_readable_with_multiple_relations(self):
+        response_content = mock.MagicMock(
+            data=mock.Mock(
+                relationships={'sub_designs': mock.Mock(data=[mock.Mock(id=3, type='designs')])},
+                attributes={'name': 'doctor_x'}
+            ),
+        )
+        orm_api = orm.OrmApi(None)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+            sub_designs = orm.RelationField('sub_designs')
+
+        design = Design.from_response_content(response_content)
+        assert design.name == 'doctor_x'
