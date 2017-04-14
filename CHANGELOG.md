@@ -5,6 +5,7 @@ Changelog for jsonapi-requests
 ------------------
 
 - Basic support for to many relationship in orm.
+- Include orm in jsonapi-requests import.
 
 
 0.2.1 (2017-02-03)
