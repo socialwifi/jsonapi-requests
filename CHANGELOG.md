@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.2.2 (unreleased)
+0.3.0 (unreleased)
 ------------------
 
 - Basic support for to many relationship in orm.
