@@ -98,8 +98,8 @@ class ApiModel(metaclass=ApiModelMetaclass):
             else:
                 raise
 
-    def as_relationship(self):
-        return data.Relationship(data=data.ResourceIdentifier(type=self.type, id=self.id))
+    def as_identifier(self):
+        return data.ResourceIdentifier(type=self.type, id=self.id)
 
     def refresh(self):
         api_response = self.endpoint.get()
