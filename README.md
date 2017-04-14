@@ -65,14 +65,16 @@ which returns
 
 Then we can run:
 
-    In [1]: api = jsonapi_requests.orm.OrmApi.config({
+    In [1]: import jsonapi_requests
+
+    In [2]: api = jsonapi_requests.orm.OrmApi.config({
         ...:         ...:     'API_ROOT': 'https://localhost/api/2.0',
         ...:         ...:     'AUTH': ('basic_auth_login', 'basic_auth_password'),
         ...:         ...:     'VALIDATE_SSL': False,
         ...:         ...:     'TIMEOUT': 1,
         ...:         ...: })
 
-    In [2]: class Person(jsonapi_requests.orm.ApiModel):
+    In [3]: class Person(jsonapi_requests.orm.ApiModel):
         ...:     class Meta:
         ...:         type = 'person'
         ...:         api = api
@@ -81,7 +83,7 @@ Then we can run:
         ...:     married_to = jsonapi_requests.orm.RelationField('married-to')
         ...:
 
-    In [3]: class Car(jsonapi_requests.orm.ApiModel):
+    In [4]: class Car(jsonapi_requests.orm.ApiModel):
         ...:     class Meta:
         ...:         type = 'car'
         ...:         api = api
@@ -90,19 +92,19 @@ Then we can run:
         ...:     driver = jsonapi_requests.orm.RelationField('driver')
         ...:
 
-    In [4]: car  = Car.from_id(2)
+    In [5]: car  = Car.from_id(2)
 
-    In [5]: car.color # request happens here
-    Out[5]: 'red'
+    In [6]: car.color # request happens here
+    Out[6]: 'red'
 
-    In [6]: car.driver.name
-    Out[6]: 'Kowalski'
-
-    In [7]: car.driver.married_to.name
-    Out[7]: 'Kowalska'
-
-    In [7]: car.driver.married_to.married_to.name
+    In [7]: car.driver.name
     Out[7]: 'Kowalski'
+
+    In [8]: car.driver.married_to.name
+    Out[8]: 'Kowalska'
+
+    In [9]: car.driver.married_to.married_to.name
+    Out[9]: 'Kowalski'
 
 ## Documentation
 For more documentation check our [wiki](https://github.com/socialwifi/jsonapi-requests/wiki).
