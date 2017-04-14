@@ -1,3 +1,4 @@
+from jsonapi_requests import data
 from jsonapi_requests.orm import registry
 
 
@@ -35,9 +36,9 @@ class RelationField(BaseField):
 
     def __set__(self, instance, value):
         if hasattr(value, 'id'):
-            instance_relation = InstanceRelation(instance, self.source)
+            instance_relation = self.get_instance_to_one_relation(instance)
         else:
-            instance_relation = InstanceToManyRelation(instance, self.source)
+            instance_relation = self.get_instance_to_many_relation(instance)
         instance_relation.set(value)
 
     def set_related(self, instance, object_map):
@@ -45,9 +46,15 @@ class RelationField(BaseField):
 
     def get_instance_relation(self, instance):
         if self.is_to_many(instance):
-            return InstanceToManyRelation(instance, self.source)
+            return self.get_instance_to_many_relation(instance)
         else:
-            return InstanceRelation(instance, self.source)
+            return self.get_instance_to_one_relation(instance)
+
+    def get_instance_to_one_relation(self, instance):
+        return InstanceToOneRelation(instance, self.source)
+
+    def get_instance_to_many_relation(self, instance):
+        return InstanceToManyRelation(instance, self.source)
 
     def is_to_many(self, instance):
         try:
@@ -68,6 +75,7 @@ class BaseInstanceRelation:
     def __init__(self, instance, source):
         self.instance = instance
         self.source = source
+        self.cache = InstanceCache(instance, source)
 
     def get(self):
         raise NotImplementedError
@@ -79,18 +87,18 @@ class BaseInstanceRelation:
         raise NotImplementedError
 
 
-class InstanceRelation(BaseInstanceRelation):
+class InstanceToOneRelation(BaseInstanceRelation):
     def get(self):
-        if self.is_in_cache():
-            return self.get_cached()
+        if self.cache.is_in_cache():
+            return self.cache.get_cached()
         else:
             related = self.get_new_related_object()
-            self.set_cache(related)
+            self.cache.set_cache(related)
             return related
 
     def set(self, value):
-        self.instance.relationships[self.source] = value.as_relationship()
-        self.set_cache(value)
+        self.instance.relationships[self.source] = data.Relationship(data=value.as_identifier())
+        self.cache.set_cache(value)
 
     def get_new_related_object(self):
         try:
@@ -108,7 +116,7 @@ class InstanceRelation(BaseInstanceRelation):
             pass
         else:
             if key in object_map:
-                self.set_cache(object_map[key])
+                self.cache.set_cache(object_map[key])
 
     def get_object_key(self):
         try:
@@ -122,6 +130,54 @@ class InstanceRelation(BaseInstanceRelation):
             else:
                 return registry.ObjectKey(type=data.type, id=data.id)
 
+
+class InstanceToManyRelation(BaseInstanceRelation):
+    def get(self):
+        if self.cache.is_in_cache():
+            return self.cache.get_cached()
+        else:
+            related = self.get_new_related_objects()
+            self.cache.set_cache(related)
+            return related
+
+    def set(self, values):
+        self.instance.relationships[self.source] = data.Relationship(data=[value.as_identifier() for value in values])
+        self.cache.set_cache(values)
+
+    def get_new_related_objects(self):
+        try:
+            keys = list(self.get_object_keys())
+        except ObjectKeyError:
+            return []
+        else:
+            return [self.get_new_related_object(key) for key in keys]
+
+    def set_related(self, object_map):
+        keys = list(self.get_object_keys())
+        result = []
+        for key in keys:
+            if key in object_map:
+                result.append(object_map[key])
+            else:
+                result.append(self.get_new_related_object(key))
+        self.cache.set_cache(result)
+
+    def get_new_related_object(self, key):
+        model = self.instance._options.api.type_registry.get_model(key.type)
+        return model.from_id(key.id)
+
+    def get_object_keys(self):
+        relationship = self.instance.relationships[self.source]
+        for relation in relationship.data:
+            if relation.type is not None and relation.id is not None:
+                yield registry.ObjectKey(type=relation.type, id=relation.id)
+
+
+class InstanceCache:
+    def __init__(self, instance, source):
+        self.instance = instance
+        self.source = source
+
     def is_in_cache(self):
         return self.source in self.instance.relationship_cache
 
@@ -130,7 +186,3 @@ class InstanceRelation(BaseInstanceRelation):
 
     def get_cached(self):
         return self.instance.relationship_cache[self.source]
-
-
-class InstanceToManyRelation(BaseInstanceRelation):
-    pass
