@@ -31,38 +31,53 @@ class RelationField(BaseField):
         if instance is None:
             return self
         else:
-            if self.is_in_cache(instance):
-                return self.get_cached(instance)
-            else:
-                related = self.get_new_related_object(instance)
-                self.set_cache(instance, related)
-                return related
+            return InstanceRelation(instance, self.source).get()
 
     def __set__(self, instance, value):
-        instance.relationships[self.source] = value.as_relationship()
-        self.set_cache(instance, value)
+        InstanceRelation(instance, self.source).set(value)
 
-    def get_new_related_object(self, instance):
+    def set_related(self, instance, object_map):
+        InstanceRelation(instance, self.source).set_related(object_map)
+
+
+class InstanceRelation:
+    def __init__(self, instance, source):
+        self.instance = instance
+        self.source = source
+
+    def get(self):
+        if self.is_in_cache():
+            return self.get_cached()
+        else:
+            related = self.get_new_related_object()
+            self.set_cache(related)
+            return related
+
+    def set(self, value):
+        self.instance.relationships[self.source] = value.as_relationship()
+        self.set_cache(value)
+
+    def get_new_related_object(self):
         try:
-            key = self.get_object_key(instance)
+            key = self.get_object_key()
         except ObjectKeyError:
             return None
         else:
-            model = instance._options.api.type_registry.get_model(key.type)
+            model = self.instance._options.api.type_registry.get_model(key.type)
             return model.from_id(key.id)
 
-    def set_related(self, instance, object_map):
+    def set_related(self, object_map):
         try:
-            key = self.get_object_key(instance)
+            key = self.get_object_key()
         except ObjectKeyError:
             pass
         else:
             if key in object_map:
-                self.set_cache(instance, object_map[key])
+                self.set_cache(object_map[key])
 
-    def get_object_key(self, instance):
+    def get_object_key(self):
         try:
-            relationship = instance.relationships[self.source]
+            relationship = self.instance.relationships[self.source]
         except KeyError:
             raise ObjectKeyError
         else:
@@ -72,11 +87,11 @@ class RelationField(BaseField):
             else:
                 return registry.ObjectKey(type=data.type, id=data.id)
 
-    def is_in_cache(self, instance):
-        return self.source in instance.relationship_cache
+    def is_in_cache(self):
+        return self.source in self.instance.relationship_cache
 
-    def set_cache(self, instance, related):
-        instance.relationship_cache[self.source] = related
+    def set_cache(self, related):
+        self.instance.relationship_cache[self.source] = related
 
-    def get_cached(self, instance):
-        return instance.relationship_cache[self.source]
+    def get_cached(self):
+        return self.instance.relationship_cache[self.source]
