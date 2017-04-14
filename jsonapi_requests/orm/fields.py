@@ -31,20 +31,55 @@ class RelationField(BaseField):
         if instance is None:
             return self
         else:
-            return InstanceRelation(instance, self.source).get()
+            return self.get_instance_relation(instance).get()
 
     def __set__(self, instance, value):
-        InstanceRelation(instance, self.source).set(value)
+        if hasattr(value, 'id'):
+            instance_relation = InstanceRelation(instance, self.source)
+        else:
+            instance_relation = InstanceToManyRelation(instance, self.source)
+        instance_relation.set(value)
 
     def set_related(self, instance, object_map):
-        InstanceRelation(instance, self.source).set_related(object_map)
+        self.get_instance_relation(instance).set_related(object_map)
+
+    def get_instance_relation(self, instance):
+        if self.is_to_many(instance):
+            return InstanceToManyRelation(instance, self.source)
+        else:
+            return InstanceRelation(instance, self.source)
+
+    def is_to_many(self, instance):
+        try:
+            return not hasattr(self.get_data(instance), 'id')
+        except ObjectKeyError:
+            return False
+
+    def get_data(self, instance):
+        try:
+            relationship = instance.relationships[self.source]
+        except KeyError:
+            raise ObjectKeyError
+        else:
+            return relationship.data
 
 
-class InstanceRelation:
+class BaseInstanceRelation:
     def __init__(self, instance, source):
         self.instance = instance
         self.source = source
 
+    def get(self):
+        raise NotImplementedError
+
+    def set(self, value):
+        raise NotImplementedError
+
+    def set_related(self, object_map):
+        raise NotImplementedError
+
+
+class InstanceRelation(BaseInstanceRelation):
     def get(self):
         if self.is_in_cache():
             return self.get_cached()
@@ -95,3 +130,7 @@ class InstanceRelation:
 
     def get_cached(self):
         return self.instance.relationship_cache[self.source]
+
+
+class InstanceToManyRelation(BaseInstanceRelation):
+    pass
