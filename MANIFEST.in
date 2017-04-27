@@ -2,3 +2,4 @@ include CHANGELOG.md
 include LICENSE
 include README.md
 include base_requirements.txt
+prune tests
