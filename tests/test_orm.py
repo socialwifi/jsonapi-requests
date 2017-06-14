@@ -1,5 +1,6 @@
 from unittest import mock
 
+from jsonapi_requests import data
 from jsonapi_requests import orm
 
 
@@ -49,7 +50,7 @@ class TestApiModel:
             data=mock.Mock(relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
             included=[mock.MagicMock(id='1', type='test', attributes={'name': 'alice'})]
         )
-        orm_api = orm.OrmApi(None)
+        orm_api = orm.OrmApi(mock.MagicMock())
 
         class Test(orm.ApiModel):
             class Meta:
@@ -65,7 +66,7 @@ class TestApiModel:
         response_content = mock.MagicMock(
             data=mock.Mock(relationships={'other': mock.Mock(data=mock.Mock(id=None, type=None))})
         )
-        orm_api = orm.OrmApi(None)
+        orm_api = orm.OrmApi(mock.MagicMock())
 
         class Test(orm.ApiModel):
             class Meta:
@@ -84,7 +85,7 @@ class TestApiModel:
                 attributes={'name': 'doctor_x'}
             ),
         )
-        orm_api = orm.OrmApi(None)
+        orm_api = orm.OrmApi(mock.MagicMock())
 
         class Design(orm.ApiModel):
             class Meta:
@@ -95,4 +96,122 @@ class TestApiModel:
             sub_designs = orm.RelationField('sub_designs')
 
         design = Design.from_response_content(response_content)
+        assert design.name == 'doctor_x'
+
+    def test_saving_new(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.post.return_value.status_code = 201
+        mock_api.endpoint.return_value.post.return_value.content.data = mock.Mock(
+            attributes={'name': 'doctor_x'},
+            id='1',
+            type='test'
+        )
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+
+        design = Design()
+        design.name = 'doctor_x'
+        assert design.id is None
+        design.save()
+        assert design.id == '1'
+        mock_api.endpoint.return_value.post.assert_called_with(
+            object=data.JsonApiObject.from_data({'type': 'designs', 'attributes': {'name': 'doctor_x'}})
+        )
+
+    def test_creating_with_id(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.post.return_value.status_code = 204
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+
+        design = Design()
+        design.id = '1'
+        design.name = 'doctor_x'
+        design.create()
+        assert design.raw_object.id == '1'
+        mock_api.endpoint.return_value.post.assert_called_with(
+            object=data.JsonApiObject.from_data({'id': '1', 'type': 'designs', 'attributes': {'name': 'doctor_x'}})
+        )
+
+    def test_saving_updated(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.patch.return_value.status_code = 204
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+
+        design = Design()
+        design.name = 'doctor_x'
+        design.id = '1'
+        design.save()
+        mock_api.endpoint.return_value.patch.assert_called_with(
+            object=data.JsonApiObject.from_data({'id': '1', 'type': 'designs', 'attributes': {'name': 'doctor_x'}})
+        )
+
+    def test_saving_updated_with_some_server_side_changes(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.patch.return_value.status_code = 200
+        mock_api.endpoint.return_value.patch.return_value.content = mock.MagicMock(
+            data=mock.Mock(
+                attributes={'name': 'doctor_x', 'status': 'complete'}
+            ),
+        )
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+            status = orm.AttributeField('status')
+
+        design = Design()
+        design.name = 'doctor_x'
+        design.id = '1'
+        design.save()
+        mock_api.endpoint.return_value.patch.assert_called_with(
+            object=data.JsonApiObject.from_data({'id': '1', 'type': 'designs', 'attributes': {'name': 'doctor_x'}})
+        )
+        assert design.status == 'complete'
+
+    def test_saving_updated_with_metadata(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.patch.return_value.status_code = 200
+        mock_api.endpoint.return_value.patch.return_value.content = data.JsonApiResponse.from_data({
+            'meta': {'success-level': 'great'}
+        })
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+
+        design = Design()
+        design.name = 'doctor_x'
+        design.id = '1'
+        design.save()
+        mock_api.endpoint.return_value.patch.assert_called_with(
+            object=data.JsonApiObject.from_data({'id': '1', 'type': 'designs', 'attributes': {'name': 'doctor_x'}})
+        )
         assert design.name == 'doctor_x'
