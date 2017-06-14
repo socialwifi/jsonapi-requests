@@ -250,3 +250,45 @@ class TestApiModel:
 
         design = Design.from_response_content(response_content)
         assert design.sub_designs.sub_designs.name == 'doctor_x'
+
+    def test_getting_list(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = [mock.Mock(
+            type='test', id='123', attributes={'name': 'alice'})]
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        result = Test.get_list()
+        mock_api.endpoint.assert_called_with('test/')
+        assert result[0].name == 'alice'
+
+    def test_getting_list_with_relationships(self):
+        mock_api = mock.Mock()
+        mock_api.endpoint.return_value.get.return_value.content = mock.MagicMock(
+            data=[mock.Mock(
+                type='test', id='123', attributes={'name': 'bob'},
+                relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}
+            ), mock.MagicMock(
+                type='test', id='1', attributes={'name': 'alice'}
+            )],
+            included=[]
+        )
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            other = orm.RelationField(source='other')
+            name = orm.AttributeField(source='name')
+
+        result = Test.get_list()
+        mock_api.endpoint.assert_called_with('test/')
+        assert result[0].name == 'bob'
+        assert result[1].name == 'alice'
+        assert result[0].other.name == 'alice'
