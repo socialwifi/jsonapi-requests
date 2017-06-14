@@ -4,6 +4,8 @@ Changelog for jsonapi-requests
 0.3.0 (unreleased)
 ------------------
 
+- Added save method in orm.
+- Added get_list method in orm.
 - Basic support for to many relationship in orm.
 - Include orm in jsonapi-requests import.
 
