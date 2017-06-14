@@ -17,6 +17,8 @@ class ApiModelMetaclass(type):
         cls._options = options
         if options.api and options.type:
             options.api.type_registry.register(cls)
+            if 'list_endpoint' not in kwargs:
+                cls.list_endpoint = cls._options.api.endpoint('{}/'.format(cls._options.type))
 
 
 class OptionsFactory:
@@ -63,8 +65,8 @@ class Options:
 
 
 class ApiModel(metaclass=ApiModelMetaclass):
-    def __init__(self, raw_object):
-        self.raw_object = raw_object
+    def __init__(self, raw_object=None):
+        self.raw_object = raw_object or data.JsonApiObject()
         self.relationship_cache = {}
 
     @classmethod
@@ -106,6 +108,23 @@ class ApiModel(metaclass=ApiModelMetaclass):
         jsonapi_response = api_response.content
         self.raw_object = jsonapi_response.data
         self._populate_related(jsonapi_response)
+
+    def save(self):
+        if not self.id:
+            self.create()
+        else:
+            self.update()
+
+    def create(self):
+        api_response = self.list_endpoint.post(object=self.raw_object)
+        jsonapi_response = api_response.content
+        self.raw_object = jsonapi_response.data
+
+    def update(self):
+        api_response = self.endpoint.patch(object=self.raw_object)
+        if api_response.status_code != 204:
+            jsonapi_response = api_response.content
+            self.raw_object = jsonapi_response.data
 
     def _populate_related(self, response):
         object_map = self._get_included_object_map_from_response(response)
