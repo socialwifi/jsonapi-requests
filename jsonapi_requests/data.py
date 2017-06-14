@@ -89,6 +89,11 @@ class Record(AbstractValue):
         for field in self.get_schema():
             setattr(self, field, kwargs.get(field))
 
+    def __bool__(self):
+        return any(
+            getattr(self, field) for field in self.get_schema()
+        )
+
     @classmethod
     def get_schema(cls):
         return cls.schema
