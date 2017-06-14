@@ -1,5 +1,6 @@
 from jsonapi_requests import data
 from jsonapi_requests.orm import fields as orm_fields
+from jsonapi_requests.orm import fields as repositories
 from jsonapi_requests.orm import registry
 
 
@@ -75,8 +76,11 @@ class ApiModel(metaclass=ApiModelMetaclass):
 
     @classmethod
     def from_response_content(cls, jsonapi_response):
+        assert jsonapi_response.data.type == cls._options.type
         new = cls(raw_object=jsonapi_response.data)
-        new._populate_related(jsonapi_response)
+        repository = repositories.Repository(cls._options.api.type_registry)
+        repository.add(new)
+        repository.update_from_api_response(jsonapi_response)
         return new
 
     @property
@@ -114,8 +118,11 @@ class ApiModel(metaclass=ApiModelMetaclass):
     def refresh(self):
         api_response = self.endpoint.get()
         jsonapi_response = api_response.content
-        self.raw_object = jsonapi_response.data
-        self._populate_related(jsonapi_response)
+        assert jsonapi_response.data.type == self.type
+        assert jsonapi_response.data.id == self.id
+        repository = repositories.Repository(self._options.api.type_registry)
+        repository.add(self)
+        repository.update_from_api_response(jsonapi_response)
 
     def save(self):
         if not self.id:
@@ -133,25 +140,10 @@ class ApiModel(metaclass=ApiModelMetaclass):
         if api_response.status_code == 200 and api_response.content.data:
             self.raw_object = api_response.content.data
 
-    def _populate_related(self, response):
-        object_map = self._get_included_object_map_from_response(response)
-        object_map[registry.ObjectKey(type=self._options.type, id=self.id)] = self
-        for object in object_map.values():
-            object._set_related_fields(object_map)
-
-    def _set_related_fields(self, object_map):
+    def set_related_fields(self, repository):
         for field in self._options.fields.values():
             if hasattr(field, 'set_related'):
-                field.set_related(self, object_map)
-
-    def _get_included_object_map_from_response(self, response):
-        if hasattr(response.data, 'items'):
-            data = [response.data]
-        else:
-            data = response.data or []
-        included = response.included or []
-        object_map = self._options.api.type_registry.get_mapped_orm_objects(data+included)
-        return object_map
+                field.set_related(self, repository)
 
     @property
     def endpoint(self):

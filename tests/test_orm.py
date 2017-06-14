@@ -12,7 +12,7 @@ class TestApiModel:
     def test_refresh(self):
         mock_api = mock.MagicMock()
         mock_api.endpoint.return_value.get.return_value.content.data = mock.Mock(
-            type='test', attributes={'name': 'alice'})
+            type='test', id='123', attributes={'name': 'alice'})
         orm_api = orm.OrmApi(mock_api)
 
         class Test(orm.ApiModel):
@@ -29,7 +29,9 @@ class TestApiModel:
     def test_refresh_with_relationships(self):
         mock_api = mock.Mock()
         mock_api.endpoint.return_value.get.return_value.content = mock.MagicMock(
-            data=mock.Mock(type='test', relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
+            data=mock.Mock(
+                type='test', id='123', relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}
+            ),
             included=[mock.MagicMock(id='1', type='test', attributes={'name': 'alice'})]
         )
         orm_api = orm.OrmApi(mock_api)
@@ -65,7 +67,7 @@ class TestApiModel:
 
     def test_from_response_with_relationship_with_none_type(self):
         response_content = mock.MagicMock(
-            data=mock.Mock(relationships={'other': mock.Mock(data=mock.Mock(id=None, type=None))})
+            data=mock.Mock(id='1', type='test', relationships={'other': mock.Mock(data=mock.Mock(id=None, type=None))})
         )
         orm_api = orm.OrmApi(mock.MagicMock())
 

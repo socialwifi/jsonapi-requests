@@ -1,5 +1,6 @@
 from jsonapi_requests import data
 from jsonapi_requests.orm import registry
+from jsonapi_requests.orm import repositories
 
 
 class ObjectKeyError(Exception):
@@ -41,8 +42,8 @@ class RelationField(BaseField):
             instance_relation = self.get_instance_to_many_relation(instance)
         instance_relation.set(value)
 
-    def set_related(self, instance, object_map):
-        self.get_instance_relation(instance).set_related(object_map)
+    def set_related(self, instance, repository):
+        self.get_instance_relation(instance).set_related(repository)
 
     def get_instance_relation(self, instance):
         if self.is_to_many(instance):
@@ -109,14 +110,14 @@ class InstanceToOneRelation(BaseInstanceRelation):
             model = self.instance._options.api.type_registry.get_model(key.type)
             return model.from_id(key.id)
 
-    def set_related(self, object_map):
+    def set_related(self, repository):
         try:
             key = self.get_object_key()
         except ObjectKeyError:
             pass
         else:
-            if key in object_map:
-                self.cache.set_cache(object_map[key])
+            if key in repository:
+                self.cache.set_cache(repository[key])
 
     def get_object_key(self):
         try:
@@ -128,7 +129,7 @@ class InstanceToOneRelation(BaseInstanceRelation):
             if data.type is None or data.id is None:
                 raise ObjectKeyError
             else:
-                return registry.ObjectKey(type=data.type, id=data.id)
+                return repositories.ObjectKey(type=data.type, id=data.id)
 
 
 class InstanceToManyRelation(BaseInstanceRelation):
@@ -170,7 +171,7 @@ class InstanceToManyRelation(BaseInstanceRelation):
         relationship = self.instance.relationships[self.source]
         for relation in relationship.data:
             if relation.type is not None and relation.id is not None:
-                yield registry.ObjectKey(type=relation.type, id=relation.id)
+                yield repositories.ObjectKey(type=relation.type, id=relation.id)
 
 
 class InstanceCache:
