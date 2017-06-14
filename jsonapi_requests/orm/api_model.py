@@ -1,7 +1,6 @@
 from jsonapi_requests import data
 from jsonapi_requests.orm import fields as orm_fields
-from jsonapi_requests.orm import fields as repositories
-from jsonapi_requests.orm import registry
+from jsonapi_requests.orm import repositories
 
 
 class JsonApiObjectStub:
@@ -74,14 +73,29 @@ class ApiModel(metaclass=ApiModelMetaclass):
     def from_id(cls, id):
         return cls(raw_object=JsonApiObjectStub(id))
 
+
+    @classmethod
+    def get_list(cls):
+        response = cls.list_endpoint.get()
+        return cls.from_response_content(response.content)
+
     @classmethod
     def from_response_content(cls, jsonapi_response):
-        assert jsonapi_response.data.type == cls._options.type
-        new = cls(raw_object=jsonapi_response.data)
         repository = repositories.Repository(cls._options.api.type_registry)
-        repository.add(new)
+        if hasattr(jsonapi_response.data, 'items'):
+            assert jsonapi_response.data.type == cls._options.type
+            result = cls(raw_object=jsonapi_response.data)
+            repository.add(result)
+        else:
+            result = []
+            for object in jsonapi_response.data:
+                assert object.type == cls._options.type
+                new = cls(raw_object=object)
+                result.append(new)
+                repository.add(new)
         repository.update_from_api_response(jsonapi_response)
-        return new
+        return result
+
 
     @property
     def type(self):
