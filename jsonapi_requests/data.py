@@ -158,8 +158,11 @@ class Relationship(Record):
 
     # noinspection PyMissingConstructor
     def __init__(self, *, data=None, links=None):
-        self.data = data
-        self.links = links
+        if data is None:
+            self.data = ResourceIdentifier()
+        else:
+            self.data = data
+        self.links = links or Dictionary()
 
 
 class JsonApiObject(Record):
@@ -175,9 +178,9 @@ class JsonApiObject(Record):
     def __init__(self, *, type=None, id=None, attributes=None, relationships=None, links=None):
         self.type = type
         self.id = id
-        self.attributes = attributes
-        self.relationships = relationships
-        self.links = links
+        self.attributes = attributes or Dictionary()
+        self.relationships = relationships or Dictionary()
+        self.links = links or Dictionary()
 
 
 class JsonApiResponse(Record):
@@ -192,12 +195,15 @@ class JsonApiResponse(Record):
 
     # noinspection PyMissingConstructor
     def __init__(self, *, data=None, errors=None, meta=None, jsonapi=None, links=None, included=None):
-        self.data = data
-        self.errors = errors
+        if data is None:
+            self.data = JsonApiObject()
+        else:
+            self.data = data
+        self.errors = errors or List()
         self.meta = meta
         self.jsonapi = jsonapi
-        self.links = links
-        self.included = included
+        self.links = links or Dictionary()
+        self.included = included or List()
 
 
 class CantLoadData(Exception):
