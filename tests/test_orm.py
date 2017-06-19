@@ -11,7 +11,8 @@ class TestApiModel:
 
     def test_refresh(self):
         mock_api = mock.MagicMock()
-        mock_api.endpoint.return_value.get.return_value.content.data = mock.Mock(attributes={'name': 'alice'})
+        mock_api.endpoint.return_value.get.return_value.content.data = mock.Mock(
+            type='test', attributes={'name': 'alice'})
         orm_api = orm.OrmApi(mock_api)
 
         class Test(orm.ApiModel):
@@ -28,7 +29,7 @@ class TestApiModel:
     def test_refresh_with_relationships(self):
         mock_api = mock.Mock()
         mock_api.endpoint.return_value.get.return_value.content = mock.MagicMock(
-            data=mock.Mock(relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
+            data=mock.Mock(type='test', relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
             included=[mock.MagicMock(id='1', type='test', attributes={'name': 'alice'})]
         )
         orm_api = orm.OrmApi(mock_api)
@@ -47,7 +48,7 @@ class TestApiModel:
 
     def test_from_response_with_relationships(self):
         response_content = mock.MagicMock(
-            data=mock.Mock(relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
+            data=mock.Mock(type='test', relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
             included=[mock.MagicMock(id='1', type='test', attributes={'name': 'alice'})]
         )
         orm_api = orm.OrmApi(mock.MagicMock())
@@ -81,6 +82,7 @@ class TestApiModel:
     def test_issue_19_attributes_are_readable_with_multiple_relations(self):
         response_content = mock.MagicMock(
             data=mock.Mock(
+                type='designs',
                 relationships={'sub_designs': mock.Mock(data=[mock.Mock(id=3, type='designs')])},
                 attributes={'name': 'doctor_x'}
             ),
@@ -170,6 +172,7 @@ class TestApiModel:
         mock_api.endpoint.return_value.patch.return_value.status_code = 200
         mock_api.endpoint.return_value.patch.return_value.content = mock.MagicMock(
             data=mock.Mock(
+                type='designs',
                 attributes={'name': 'doctor_x', 'status': 'complete'}
             ),
         )
@@ -206,7 +209,7 @@ class TestApiModel:
                 api = orm_api
 
             name = orm.AttributeField('name')
-
+        
         design = Design()
         design.name = 'doctor_x'
         design.id = '1'
@@ -215,3 +218,33 @@ class TestApiModel:
             object=data.JsonApiObject.from_data({'id': '1', 'type': 'designs', 'attributes': {'name': 'doctor_x'}})
         )
         assert design.name == 'doctor_x'
+
+    def test_relation_to_main_object(self):
+        response_content = mock.MagicMock(
+            data=mock.Mock(
+                id=2,
+                type='designs',
+                relationships={'sub_designs': mock.Mock(data=mock.Mock(id=3, type='designs'))},
+                attributes={'name': 'doctor_x'}
+            ),
+            included=[
+                mock.Mock(
+                    id=3,
+                    type='designs',
+                    relationships={'sub_designs': mock.Mock(data=mock.Mock(id=2, type='designs'))},
+                    attributes={'name': 'doctor_y'}
+                ),
+            ],
+        )
+        orm_api = orm.OrmApi(mock.MagicMock())
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            name = orm.AttributeField('name')
+            sub_designs = orm.RelationField('sub_designs')
+
+        design = Design.from_response_content(response_content)
+        assert design.sub_designs.sub_designs.name == 'doctor_x'

@@ -145,7 +145,12 @@ class ApiModel(metaclass=ApiModelMetaclass):
                 field.set_related(self, object_map)
 
     def _get_included_object_map_from_response(self, response):
-        object_map = self._options.api.type_registry.get_mapped_orm_objects(response.included or [])
+        if hasattr(response.data, 'items'):
+            data = [response.data]
+        else:
+            data = response.data or []
+        included = response.included or []
+        object_map = self._options.api.type_registry.get_mapped_orm_objects(data+included)
         return object_map
 
     @property
