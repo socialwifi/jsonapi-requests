@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.3.0 (unreleased)
+0.3.0 (2017-06-20)
 ------------------
 
 - Added save method in orm.
