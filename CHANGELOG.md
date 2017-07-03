@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.3.1 (unreleased)
+0.3.1 (2017-07-03)
 ------------------
 
 - Fixed single object orm response.
