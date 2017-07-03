@@ -82,17 +82,17 @@ class ApiModel(metaclass=ApiModelMetaclass):
     @classmethod
     def from_response_content(cls, jsonapi_response):
         repository = repositories.Repository(cls._options.api.type_registry)
-        if hasattr(jsonapi_response.data, 'items'):
-            assert jsonapi_response.data.type == cls._options.type
-            result = cls(raw_object=jsonapi_response.data)
-            repository.add(result)
-        else:
+        if isinstance(jsonapi_response.data, (list, tuple)):
             result = []
             for object in jsonapi_response.data:
                 assert object.type == cls._options.type
                 new = cls(raw_object=object)
                 result.append(new)
                 repository.add(new)
+        else:
+            assert jsonapi_response.data.type == cls._options.type
+            result = cls(raw_object=jsonapi_response.data)
+            repository.add(result)
         repository.update_from_api_response(jsonapi_response)
         return result
 
