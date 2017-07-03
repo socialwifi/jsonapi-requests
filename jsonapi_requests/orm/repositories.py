@@ -20,10 +20,10 @@ class Repository:
         return object_key in self.object_map
 
     def update_from_api_response(self, response):
-        if hasattr(response.data, 'items'):
-            data = [response.data]
-        else:
+        if isinstance(response.data, (list, tuple)):
             data = response.data or []
+        else:
+            data = [response.data] if response.data else []
         included = response.included or []
         for raw_object in itertools.chain(data, included):
             self.update_or_create_form_raw_object(raw_object)

@@ -11,7 +11,7 @@ class TestApiModel:
 
     def test_refresh(self):
         mock_api = mock.MagicMock()
-        mock_api.endpoint.return_value.get.return_value.content.data = mock.Mock(
+        mock_api.endpoint.return_value.get.return_value.content.data = data.JsonApiObject(
             type='test', id='123', attributes={'name': 'alice'})
         orm_api = orm.OrmApi(mock_api)
 
@@ -28,9 +28,11 @@ class TestApiModel:
 
     def test_refresh_with_relationships(self):
         mock_api = mock.Mock()
-        mock_api.endpoint.return_value.get.return_value.content = mock.MagicMock(
-            data=mock.Mock(
-                type='test', id='123', relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}
+        mock_api.endpoint.return_value.get.return_value.content = data.JsonApiResponse(
+            data=data.JsonApiObject(
+                type='test', id='123', relationships={
+                    'other': data.Relationship(data=data.ResourceIdentifier(id='1', type='test'))
+                }
             ),
             included=[mock.MagicMock(id='1', type='test', attributes={'name': 'alice'})]
         )
@@ -49,8 +51,10 @@ class TestApiModel:
         assert test.other.name == 'alice'
 
     def test_from_response_with_relationships(self):
-        response_content = mock.MagicMock(
-            data=mock.Mock(type='test', relationships={'other': mock.Mock(data=mock.Mock(id='1', type='test'))}),
+        response_content = data.JsonApiResponse(
+            data=data.JsonApiObject(type='test', relationships={
+                'other': data.Relationship(data=data.ResourceIdentifier(id='1', type='test'))
+            }),
             included=[mock.MagicMock(id='1', type='test', attributes={'name': 'alice'})]
         )
         orm_api = orm.OrmApi(mock.MagicMock())
@@ -66,8 +70,10 @@ class TestApiModel:
         assert test.other.name == 'alice'
 
     def test_from_response_with_relationship_with_none_type(self):
-        response_content = mock.MagicMock(
-            data=mock.Mock(id='1', type='test', relationships={'other': mock.Mock(data=mock.Mock(id=None, type=None))})
+        response_content = data.JsonApiResponse(
+            data=data.JsonApiObject(id='1', type='test', relationships={
+                'other': data.Relationship(data=data.ResourceIdentifier(id=None, type=None))
+            })
         )
         orm_api = orm.OrmApi(mock.MagicMock())
 
@@ -82,10 +88,10 @@ class TestApiModel:
         assert test.other is None
 
     def test_issue_19_attributes_are_readable_with_multiple_relations(self):
-        response_content = mock.MagicMock(
-            data=mock.Mock(
+        response_content = data.JsonApiResponse(
+            data=data.JsonApiObject(
                 type='designs',
-                relationships={'sub_designs': mock.Mock(data=[mock.Mock(id=3, type='designs')])},
+                relationships={'sub_designs': data.Relationship(data=[data.ResourceIdentifier(id=3, type='designs')])},
                 attributes={'name': 'doctor_x'}
             ),
         )
@@ -105,7 +111,7 @@ class TestApiModel:
     def test_saving_new(self):
         mock_api = mock.MagicMock()
         mock_api.endpoint.return_value.post.return_value.status_code = 201
-        mock_api.endpoint.return_value.post.return_value.content.data = mock.Mock(
+        mock_api.endpoint.return_value.post.return_value.content.data = data.JsonApiObject(
             attributes={'name': 'doctor_x'},
             id='1',
             type='test'
