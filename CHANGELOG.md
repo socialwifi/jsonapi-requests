@@ -1,6 +1,12 @@
 Changelog for jsonapi-requests
 =================
 
+0.3.3 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 0.3.2 (2017-07-28)
 ------------------
 
