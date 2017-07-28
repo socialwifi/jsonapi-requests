@@ -4,7 +4,7 @@ Changelog for jsonapi-requests
 0.3.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed `orm.ApiModel` not respecting `APPEND_SLASH` configuration. ([#27](https://github.com/socialwifi/jsonapi-requests/issues/27))
 
 
 0.3.1 (2017-07-03)

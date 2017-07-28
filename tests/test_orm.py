@@ -23,7 +23,7 @@ class TestApiModel:
 
         test = Test.from_id('123')
         test.refresh()
-        mock_api.endpoint.assert_called_with('test/123/')
+        mock_api.endpoint.assert_called_with('test/123')
         assert test.name == 'alice'
 
     def test_refresh_with_relationships(self):
@@ -270,7 +270,7 @@ class TestApiModel:
             name = orm.AttributeField(source='name')
 
         result = Test.get_list()
-        mock_api.endpoint.assert_called_with('test/')
+        mock_api.endpoint.assert_called_with('test')
         assert result[0].name == 'alice'
 
     def test_getting_list_with_relationships(self):
@@ -294,7 +294,7 @@ class TestApiModel:
             name = orm.AttributeField(source='name')
 
         result = Test.get_list()
-        mock_api.endpoint.assert_called_with('test/')
+        mock_api.endpoint.assert_called_with('test')
         assert result[0].name == 'bob'
         assert result[1].name == 'alice'
         assert result[0].other.name == 'alice'

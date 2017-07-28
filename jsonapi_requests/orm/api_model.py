@@ -18,7 +18,7 @@ class ApiModelMetaclass(type):
         if options.api and options.type:
             options.api.type_registry.register(cls)
             if 'list_endpoint' not in kwargs:
-                cls.list_endpoint = cls._options.api.endpoint('{}/'.format(cls._options.type))
+                cls.list_endpoint = cls._options.api.endpoint('{}'.format(cls._options.type))
 
 
 class OptionsFactory:
@@ -161,6 +161,6 @@ class ApiModel(metaclass=ApiModelMetaclass):
 
     @property
     def endpoint(self):
-        return self._options.api.endpoint('{}/{}/'.format(self._options.type, self.id))
+        return self._options.api.endpoint('{}/{}'.format(self._options.type, self.id))
 
     _options = Options(None, None, {})
