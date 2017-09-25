@@ -13,7 +13,10 @@ setup(
     packages=find_packages(exclude=['tests']),
     install_requires=[str(ir.req) for ir in parse_requirements('base_requirements.txt', session=False)],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'flask'],
+    extras_require={
+        'flask': ['flask']
+    },
     license='BSD',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -6,4 +6,5 @@ python:
 install:
   - "pip install -r base_requirements.txt"
   - "pip install -U pytest==3.0.5"
+  - "pip install flask"
 script: python -m pytest

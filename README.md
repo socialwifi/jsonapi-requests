@@ -105,5 +105,23 @@ Then we can run:
     In [9]: car.driver.married_to.married_to.name
     Out[9]: 'Kowalski'
 
+## Authorization HTTP header forwarding in Flask application
+
+When using jsonapi\_requests with Flask, we can set `jsonapi_requests.auth.FlaskForwardAuth()` as `AUTH` configuration option to copy authorization header from current request context.
+It can be useful when fetching resources from different microservices.
+
+Installation with flask support:
+
+    pip install jsonapi-requests[flask]
+
+Example usage:
+
+    import jsonapi_requests
+
+    api = jsonapi_requests.Api.config({
+        'API_ROOT': 'https://localhost/api/2.0',
+        'AUTH': jsonapi_requests.auth.FlaskForwardAuth(),
+    })
+
 ## Documentation
 For more documentation check our [wiki](https://github.com/socialwifi/jsonapi-requests/wiki).
