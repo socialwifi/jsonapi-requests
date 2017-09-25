@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.3.3 (unreleased)
+0.4.0 (2017-09-25)
 ------------------
 
 - Added `jsonapi_requests.auth.FlaskForwardAuth()` as `AUTH` configuration option.
