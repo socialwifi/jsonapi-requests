@@ -105,5 +105,17 @@ Then we can run:
     In [9]: car.driver.married_to.married_to.name
     Out[9]: 'Kowalski'
 
+## Authorization HTTP header forwarding example
+
+We can set jsonapi_requests.auth.FlaskForwardAuth() as AUTH configuration option to copy authorization header from current request context.
+It can be useful when fetching resources form different microservices.
+
+    api = jsonapi_requests.Api.config({
+        'API_ROOT': 'https://localhost/api/2.0',
+        'AUTH': auth.FlaskForwardAuth(),
+        'VALIDATE_SSL': False,
+        'TIMEOUT': 1,
+    })
+
 ## Documentation
 For more documentation check our [wiki](https://github.com/socialwifi/jsonapi-requests/wiki).
