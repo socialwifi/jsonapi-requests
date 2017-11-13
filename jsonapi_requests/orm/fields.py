@@ -142,7 +142,7 @@ class InstanceToManyRelation(BaseInstanceRelation):
             return related
 
     def set(self, values):
-        self.instance.relationships[self.source] = data.Relationship(data=[value.as_identifier() for value in values])
+        self.instance.relationships[self.source] = data.Relationship(data=data.List(value.as_identifier() for value in values))
         self.cache.set_cache(values)
 
     def get_new_related_objects(self):
