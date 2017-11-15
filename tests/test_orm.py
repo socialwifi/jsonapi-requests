@@ -257,6 +257,30 @@ class TestApiModel:
         design = Design.from_response_content(response_content)
         assert design.sub_designs.sub_designs.name == 'doctor_x'
 
+    def test_saving_relation_to_many(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.patch.return_value.status_code = 200
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'designs'
+                api = orm_api
+
+            others = orm.RelationField('others')
+
+        design = Design()
+        design.id = '1'
+        design.others = [design]
+        design.save()
+        mock_api.endpoint.return_value.patch.assert_called_with(
+            object=data.JsonApiObject.from_data({
+                'id': '1',
+                'type': 'designs',
+                'relationships': {'others': {'data': [{'type': 'designs', 'id': '1'}]}}
+            })
+        )
+
     def test_getting_list(self):
         mock_api = mock.MagicMock()
         mock_api.endpoint.return_value.get.return_value.content.data = [mock.Mock(
