@@ -1,10 +1,10 @@
 Changelog for jsonapi-requests
 =================
 
-0.4.1 (unreleased)
+0.4.1 (2017-11-15)
 ------------------
 
-- Nothing changed yet.
+- Fixed saving "to many" relation.
 
 
 0.4.0 (2017-09-25)
