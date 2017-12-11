@@ -26,6 +26,24 @@ class TestApiModel:
         mock_api.endpoint.assert_called_with('test/123')
         assert test.name == 'alice'
 
+    def test_refresh_custom_path(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = data.JsonApiObject(
+            type='test', id='123', attributes={'name': 'alice'})
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+                path = 'tests'
+            name = orm.AttributeField(source='name')
+
+        test = Test.from_id('123')
+        test.refresh()
+        mock_api.endpoint.assert_called_with('tests/123')
+        assert test.name == 'alice'
+
     def test_refresh_with_relationships(self):
         mock_api = mock.Mock()
         mock_api.endpoint.return_value.get.return_value.content = data.JsonApiResponse(
@@ -120,7 +138,7 @@ class TestApiModel:
 
         class Design(orm.ApiModel):
             class Meta:
-                type = 'designs'
+                type = 'design'
                 api = orm_api
 
             name = orm.AttributeField('name')
@@ -130,8 +148,37 @@ class TestApiModel:
         assert design.id is None
         design.save()
         assert design.id == '1'
+        mock_api.endpoint.assert_called_with('design')
         mock_api.endpoint.return_value.post.assert_called_with(
-            object=data.JsonApiObject.from_data({'type': 'designs', 'attributes': {'name': 'doctor_x'}})
+            object=data.JsonApiObject.from_data({'type': 'design', 'attributes': {'name': 'doctor_x'}})
+        )
+
+    def test_saving_new_custom_path(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.post.return_value.status_code = 201
+        mock_api.endpoint.return_value.post.return_value.content.data = data.JsonApiObject(
+            attributes={'name': 'doctor_x'},
+            id='1',
+            type='test'
+        )
+        orm_api = orm.OrmApi(mock_api)
+
+        class Design(orm.ApiModel):
+            class Meta:
+                type = 'design'
+                api = orm_api
+                path = 'designs'
+
+            name = orm.AttributeField('name')
+
+        design = Design()
+        design.name = 'doctor_x'
+        assert design.id is None
+        design.save()
+        assert design.id == '1'
+        mock_api.endpoint.assert_called_with('designs')
+        mock_api.endpoint.return_value.post.assert_called_with(
+            object=data.JsonApiObject.from_data({'type': 'design', 'attributes': {'name': 'doctor_x'}})
         )
 
     def test_creating_with_id(self):
@@ -217,7 +264,7 @@ class TestApiModel:
                 api = orm_api
 
             name = orm.AttributeField('name')
-        
+
         design = Design()
         design.name = 'doctor_x'
         design.id = '1'
@@ -295,6 +342,23 @@ class TestApiModel:
 
         result = Test.get_list()
         mock_api.endpoint.assert_called_with('test')
+        assert result[0].name == 'alice'
+
+    def test_getting_list_custom_path(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = [mock.Mock(
+            type='test', id='123', attributes={'name': 'alice'})]
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+                path = 'tests'
+            name = orm.AttributeField(source='name')
+
+        result = Test.get_list()
+        mock_api.endpoint.assert_called_with('tests')
         assert result[0].name == 'alice'
 
     def test_getting_list_with_relationships(self):
