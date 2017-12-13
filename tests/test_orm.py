@@ -138,7 +138,7 @@ class TestApiModel:
 
         class Design(orm.ApiModel):
             class Meta:
-                type = 'design'
+                type = 'designs'
                 api = orm_api
 
             name = orm.AttributeField('name')
@@ -148,9 +148,8 @@ class TestApiModel:
         assert design.id is None
         design.save()
         assert design.id == '1'
-        mock_api.endpoint.assert_called_with('design')
         mock_api.endpoint.return_value.post.assert_called_with(
-            object=data.JsonApiObject.from_data({'type': 'design', 'attributes': {'name': 'doctor_x'}})
+            object=data.JsonApiObject.from_data({'type': 'designs', 'attributes': {'name': 'doctor_x'}})
         )
 
     def test_saving_new_custom_path(self):
