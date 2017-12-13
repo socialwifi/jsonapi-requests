@@ -322,3 +322,23 @@ class TestApiModel:
         assert result[0].name == 'bob'
         assert result[1].name == 'alice'
         assert result[0].other.name == 'alice'
+
+
+    def test_delete(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = data.JsonApiObject(
+            type='test', id='123', attributes={'name': 'alice'})
+        mock_api.endpoint.return_value.delete.return_value.status_code = 204
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        test = Test.from_id('123')
+        test.delete()
+        mock_api.endpoint.assert_called_with('test/123')
+        mock_api.endpoint.return_value.delete.assert_called()
+

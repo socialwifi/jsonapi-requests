@@ -156,6 +156,8 @@ class ApiModel(metaclass=ApiModelMetaclass):
 
     def delete(self):
         api_response = self.endpoint.delete(object=self.raw_object)
+        if api_response.status_code in (200, 202, 204) and api_response.content.data:
+            self.raw_object = api_response.content.data
         
     def set_related_fields(self, repository):
         for field in self._options.fields.values():
