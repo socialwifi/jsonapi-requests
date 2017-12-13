@@ -81,8 +81,8 @@ class ApiModel(metaclass=ApiModelMetaclass):
         return cls(raw_object=JsonApiObjectStub(id))
 
     @classmethod
-    def get_list(cls):
-        response = cls._options.api.endpoint(cls.endpoint_path()).get()
+    def get_list(cls, **kwargs):
+        response = cls._options.api.endpoint(cls.endpoint_path()).get(**kwargs)
         return cls.from_response_content(response.content)
 
     @classmethod
