@@ -4,7 +4,7 @@ Changelog for jsonapi-requests
 0.4.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Custom endpoint path support. ([#32](https://github.com/socialwifi/jsonapi-requests/pull/32))
 
 
 0.4.1 (2017-11-15)
