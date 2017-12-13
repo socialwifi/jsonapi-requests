@@ -385,3 +385,21 @@ class TestApiModel:
         assert result[0].name == 'bob'
         assert result[1].name == 'alice'
         assert result[0].other.name == 'alice'
+
+    def test_getting_list_with_params(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = [mock.Mock(
+            type='test', id='123', attributes={'name': 'alice'})]
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        result = Test.get_list(headers={'X-Test': 'test'}, params={'sort': 'name'})
+        mock_api.endpoint.assert_called_with('test')
+        # verify kwargs passed through to the endpoint/requests
+        mock_api.endpoint.return_value.get.assert_called_with(headers={'X-Test': 'test'}, params={'sort': 'name'})
+        assert result[0].name == 'alice'
