@@ -69,8 +69,9 @@ class Options:
 
 class ApiModel(metaclass=ApiModelMetaclass):
     def __init__(self, raw_object=None):
-        self.raw_object = raw_object or data.JsonApiObject(type=self._options.type)
+        self._raw_object = raw_object or data.JsonApiObject(type=self._options.type)
         self.relationship_cache = {}
+        self.converter_cache = {}
 
     @classmethod
     def endpoint_path(cls):
@@ -120,6 +121,15 @@ class ApiModel(metaclass=ApiModelMetaclass):
     @id.setter
     def id(self, new_id):
         self.raw_object.id = new_id
+
+    @property
+    def raw_object(self):
+        return self._raw_object
+
+    @raw_object.setter
+    def raw_object(self, value):
+        self.converter_cache.clear()
+        self._raw_object = value
 
     def __getattr__(self, item):
         try:
