@@ -12,17 +12,28 @@ class BaseField:
 
 
 class AttributeField(BaseField):
-    def __init__(self, source):
+    def __init__(self, source, converter=None):
         self.source = source
+        self.converter = converter
 
-    def __get__(self, instance, type=None):
+    def __get__(self, instance, owner):
         if instance is None:
             return self
         else:
-            return instance.attributes[self.source]
+            if not self.converter:
+                return instance.attributes[self.source]
+            if self.source not in instance.converter_cache:
+                instance.converter_cache[self.source] = self.converter.decode(instance.attributes[self.source])
+            return instance.converter_cache[self.source]
 
     def __set__(self, instance, value):
-        instance.attributes[self.source] = value
+        if self.converter:
+            instance.converter_cache[self.source] = value
+            encoded = self.converter.encode(value)
+        else:
+            encoded = value
+
+        instance.attributes[self.source] = encoded
 
 
 class RelationField(BaseField):

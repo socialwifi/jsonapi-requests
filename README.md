@@ -105,6 +105,43 @@ Then we can run:
     In [9]: car.driver.married_to.married_to.name
     Out[9]: 'Kowalski'
 
+### Custom Field Types
+
+It's possible to use custom types for an `AttributeField` by subclassing `jsonapi_requests.orm.converters.BaseConverter`.
+Example:
+
+    from enum import Enum
+    from uuid import UUID
+
+    from jsonapi_requets import orm
+    from jsonapi_requests.orm.converters import BaseConverter, EnumConverter
+    
+    class Color(Enum):
+        RED = 'red'
+        BLUE = 'blue'
+       
+    class UuidConverter(BaseConverter):
+        def encode(self, value):
+            # take a UUID object and make it JSON serializable
+            return str(value)
+        
+        def decode(self, raw_value):
+            # take the JSON value (a string in this case) and turn it into a UUID
+            return UUID(raw_value)
+    
+    class Car(jsonapi_requests.orm.ApiModel):
+        class Meta:
+            type = 'car'
+           
+        color = jsonapi_requests.orm.AttributeField('color', converter=EnumConverter(Color)
+        guid = jsonapi_requests.orm.AttributeField('guid', converter=UuidConverter())
+    
+    car = Car()
+    car.color = Color.RED
+    car.guid = UUID('4cbecc77-fc43-4d29-8915-222d87029ec3')
+    car.save()
+
+
 ## Authorization HTTP header forwarding in Flask application
 
 When using jsonapi\_requests with Flask, we can set `jsonapi_requests.auth.FlaskForwardAuth()` as `AUTH` configuration option to copy authorization header from current request context.
