@@ -1,3 +1,5 @@
+import collections
+
 from jsonapi_requests import data
 from jsonapi_requests.orm import registry
 from jsonapi_requests.orm import repositories
@@ -12,17 +14,34 @@ class BaseField:
 
 
 class AttributeField(BaseField):
+    FieldValue = collections.namedtuple('FieldValue', ['raw', 'deserialized'])
+
     def __init__(self, source):
         self.source = source
+        self.value = self.FieldValue(raw=None, deserialized=None)
 
-    def __get__(self, instance, type=None):
+    def __get__(self, instance, owner):
         if instance is None:
             return self
-        else:
-            return instance.attributes[self.source]
+
+        raw = instance.attributes[self.source]
+        if self.value.raw != raw:
+            self.value = self.FieldValue(raw=raw, deserialized=self.deserialize(raw))
+
+        return self.value.deserialized
 
     def __set__(self, instance, value):
-        instance.attributes[self.source] = value
+        if self.value.deserialized == value:
+            return
+
+        self.value = self.FieldValue(raw=self.serialize(value), deserialized=value)
+        instance.attributes[self.source] = self.value.raw
+
+    def serialize(self, value):
+        return value
+
+    def deserialize(self, json_value):
+        return json_value
 
 
 class RelationField(BaseField):
