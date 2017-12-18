@@ -340,7 +340,4 @@ class TestApiModel:
         test = Test.from_id('123')
         test.delete()
         mock_api.endpoint.assert_called_with('test/123')
-        assert mock_api.endpoint.return_value.delete.call_count > 0
-
-        
-
+        assert mock_api.endpoint.return_value.delete.call_count == 1
