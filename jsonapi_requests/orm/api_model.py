@@ -1,4 +1,5 @@
 from jsonapi_requests import data
+from jsonapi_requests import request_factory
 from jsonapi_requests.orm import fields as orm_fields
 from jsonapi_requests.orm import repositories
 
@@ -101,6 +102,16 @@ class ApiModel(metaclass=ApiModelMetaclass):
             repository.add(result)
         repository.update_from_api_response(jsonapi_response)
         return result
+
+    @classmethod
+    def exists(cls, id):
+        try:
+            obj = cls.from_id(id)
+            obj.refresh()
+        except request_factory.ApiClientError:
+            return False
+        else:
+            return True
 
     @property
     def type(self):
