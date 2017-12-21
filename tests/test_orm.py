@@ -1,6 +1,7 @@
 from unittest import mock
 
 from jsonapi_requests import data
+from jsonapi_requests import request_factory
 from jsonapi_requests import orm
 
 
@@ -422,3 +423,31 @@ class TestApiModel:
         mock_api.endpoint.assert_called_with('test')
         mock_api.endpoint.return_value.get.assert_called_with(headers={'X-Test': 'test'}, params={'sort': 'name'})
         assert result[0].name == 'alice'
+
+    def test_exists_valid(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = data.JsonApiObject(
+            type='test', id='123', attributes={'name': 'alice'})
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        assert Test.exists('123')
+
+    def test_exists_invalid(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.side_effect = request_factory.ApiClientError(
+            status_code=404, content='Object not found')
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        assert not Test.exists('123')
