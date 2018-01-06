@@ -6,6 +6,7 @@ Changelog for jsonapi-requests
 
 - Added ability to delete a resource. ([#33](https://github.com/socialwifi/jsonapi-requests/pull/33))
 - Allow passing arguments through to get_list. ([#34](https://github.com/socialwifi/jsonapi-requests/pull/34))
+- Added exists method to ApiModel. ([#36](https://github.com/socialwifi/jsonapi-requests/pull/36))
 
 
 0.5.0 (2017-12-13)
