@@ -12,99 +12,133 @@ Python client implementation for json api. http://jsonapi.org/
 ----
 ## Usage example
 
-    In [1]: import jsonapi_requests
+```python
+import jsonapi_requests
 
-    In [2]: api = jsonapi_requests.Api.config({
-       ...:     'API_ROOT': 'https://localhost/api/2.0',
-       ...:     'AUTH': ('basic_auth_login', 'basic_auth_password'),
-       ...:     'VALIDATE_SSL': False,
-       ...:     'TIMEOUT': 1,
-       ...: })
+api = jsonapi_requests.Api.config({
+    'API_ROOT': 'https://localhost/api/2.0',
+    'AUTH': ('basic_auth_login', 'basic_auth_password'),
+    'VALIDATE_SSL': False,
+    'TIMEOUT': 1,
+})
 
-    In [3]: endpoint = api.endpoint('networks/cd9c124a-acc3-4e20-8c02-3a37d460df22/available-profiles')
+endpoint = api.endpoint('networks/cd9c124a-acc3-4e20-8c02-3a37d460df22/available-profiles')
+response = endpoint.get()
 
-    In [4]: response = endpoint.get()
+for profile in response.data:
+    print(profile.attributes['name'])
+# Example output: "162 Sushi"
 
-    In [5]: for profile in  response.data:
-       ...:     print(profile.attributes['name'])
-       ...:
-    162 Sushi
-
-    In [6]: endpoint = api.endpoint('cookies')
-
-    In [7]: endpoint.post(object=jsonapi_requests.JsonApiObject(
-        attributes={'uuid': '09d3a4fff8d64335a1ee9f1d9d054161', 'domain': 'some.domain.pl'},
-        type='cookies'))
-    Out[7]: <ApiResponse({'data': {'id': '81', 'attributes': {'uuid': '09d3a4fff8d64335a1ee9f1d9d054161', 'domain': 'some.domain.pl'}, 'type': 'cookies'}})>
+endpoint = api.endpoint('cookies')
+endpoint.post(object=jsonapi_requests.JsonApiObject(
+    type='cookies',
+    attributes={
+        'uuid': '09d3a4fff8d64335a1ee9f1d9d054161', 
+        'domain': 'some.domain.pl'
+    },
+))
+# Example output: <ApiResponse({'data': {'id': '81', 'attributes': {'uuid': '09d3a4fff8d64335a1ee9f1d9d054161', 'domain': 'some.domain.pl'}, 'type': 'cookies'}})>
+```
 
 ## Orm example
 
-Lets say we have api endpoint: https://localhost/api/2.0/car/2
+Lets say we have api endpoint: `https://localhost/api/2.0/car/2`
 which returns
 
-    {
-        'data':{
-            'id': 2,
-            'type': 'car',
-            'attributes': {'color': 'red'},
-            'relationships': {'driver':{'data': {'id': 3, 'type': 'person'}}}
+```json
+{
+    "data":{
+        "id": 2,
+        "type": "car",
+        "attributes": {
+            "color": "red"
         },
-        'included':[
-            {
-                'id': 3,
-                'type': 'person',
-                'attributes': {'name': 'Kowalski'},
-                'relationships': {'married-to': {'data': {'id': 4, 'type': 'person'}}}
+        "relationships": {
+            "driver": {
+                "data": {
+                    "id": 3, 
+                    "type": "person"
+                }
+            }
+        }
+    },
+    "included": [
+        {
+            "id": 3,
+            "type": "person",
+            "attributes": {
+                "name": "Kowalski"
             },
-            {
-                'id': 4,
-                'type': 'person',
-                'attributes': {'name': 'Kowalska'},
-                'relationships': {'married-to': {'data': {'id': 3, 'type': 'person'}}}
+            "relationships": {
+                "married-to": {
+                    "data": {
+                        "id": 4, 
+                        "type": "person"
+                    }
+                }
+            }
+        },
+        {
+            "id": 4,
+            "type": "person",
+            "attributes": {
+                "name": "Kowalska"
             },
-        ]
-    }
+            "relationships": {
+                "married-to": {
+                    "data": {
+                        "id": 3, 
+                        "type": "person"
+                    }
+                }
+            }
+        },
+    ]
+}
+```
 
 Then we can run:
 
-    In [1]: import jsonapi_requests
+```python
+import jsonapi_requests
 
-    In [2]: api = jsonapi_requests.orm.OrmApi.config({
-       ...:     'API_ROOT': 'https://localhost/api/2.0',
-       ...:     'AUTH': ('basic_auth_login', 'basic_auth_password'),
-       ...:     'VALIDATE_SSL': False,
-       ...:     'TIMEOUT': 1,
-       ...: })
+api = jsonapi_requests.orm.OrmApi.config({
+    'API_ROOT': 'https://localhost/api/2.0',
+    'AUTH': ('basic_auth_login', 'basic_auth_password'),
+    'VALIDATE_SSL': False,
+    'TIMEOUT': 1,
+})
 
-    In [3]: class Person(jsonapi_requests.orm.ApiModel):
-       ...:     class Meta:
-       ...:         type = 'person'
-       ...:         api = api
-       ...:
-       ...:     name = jsonapi_requests.orm.AttributeField('name')
-       ...:     married_to = jsonapi_requests.orm.RelationField('married-to')
+class Person(jsonapi_requests.orm.ApiModel):
+    class Meta:
+        type = 'person'
+        api = api
 
-    In [4]: class Car(jsonapi_requests.orm.ApiModel):
-       ...:     class Meta:
-       ...:         type = 'car'
-       ...:         api = api
-       ...:
-       ...:     color = jsonapi_requests.orm.AttributeField('color')
-       ...:     driver = jsonapi_requests.orm.RelationField('driver')
+    name = jsonapi_requests.orm.AttributeField('name')
+    married_to = jsonapi_requests.orm.RelationField('married-to')
 
-    In [5]: car  = Car.from_id(2)
+class Car(jsonapi_requests.orm.ApiModel):
+    class Meta:
+        type = 'car'
+        api = api
 
-    In [6]: car.color # request happens here
-    Out[6]: 'red'
+    color = jsonapi_requests.orm.AttributeField('color')
+    driver = jsonapi_requests.orm.RelationField('driver')
 
-    In [7]: car.driver.name
-    Out[7]: 'Kowalski'
+car = Car.from_id(2)
 
-    In [8]: car.driver.married_to.name
-    Out[8]: 'Kowalska'
+car.color # request happens here
+# Example output: 'red'
 
-    In [9]: car.driver.married_to.married_to.name
-    Out[9]: 'Kowalski'
+car.driver.name
+# Example output:  'Kowalski'
+
+car.driver.married_to.name
+# Example output: 'Kowalska'
+
+car.driver.married_to.married_to.name
+# Example output: 'Kowalski'
+```
 
 ## Authorization HTTP header forwarding in Flask application
 
@@ -113,16 +147,20 @@ It can be useful when fetching resources from different microservices.
 
 Installation with flask support:
 
-    pip install jsonapi-requests[flask]
+```bash
+pip install jsonapi-requests[flask]
+```
 
 Example usage:
 
-    import jsonapi_requests
+```python
+import jsonapi_requests
 
-    api = jsonapi_requests.Api.config({
-        'API_ROOT': 'https://localhost/api/2.0',
-        'AUTH': jsonapi_requests.auth.FlaskForwardAuth(),
-    })
+api = jsonapi_requests.Api.config({
+    'API_ROOT': 'https://localhost/api/2.0',
+    'AUTH': jsonapi_requests.auth.FlaskForwardAuth(),
+})
+```
 
 ## Documentation
 For more documentation check our [wiki](https://github.com/socialwifi/jsonapi-requests/wiki).
