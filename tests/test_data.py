@@ -1,7 +1,4 @@
-import pytest
-
 import jsonapi_requests.data
-from jsonapi_requests import request_factory
 
 
 class TestJsonApiResponse:
@@ -64,7 +61,7 @@ example_response = {
           "self": "http://example.com/articles/1/relationships/author",
           "related": "http://example.com/articles/1/author"
         },
-        "data": { "type": "people", "id": "9" }
+        "data": {"type": "people", "id": "9"}
       },
       "comments": {
         "links": {
@@ -72,8 +69,8 @@ example_response = {
           "related": "http://example.com/articles/1/comments"
         },
         "data": [
-          { "type": "comments", "id": "5" },
-          { "type": "comments", "id": "12" }
+          {"type": "comments", "id": "5"},
+          {"type": "comments", "id": "12"}
         ]
       }
     },
@@ -100,7 +97,7 @@ example_response = {
     },
     "relationships": {
       "author": {
-        "data": { "type": "people", "id": "2" }
+        "data": {"type": "people", "id": "2"}
       }
     },
     "links": {
@@ -114,7 +111,7 @@ example_response = {
     },
     "relationships": {
       "author": {
-        "data": { "type": "people", "id": "9" }
+        "data": {"type": "people", "id": "9"}
       }
     },
     "links": {
