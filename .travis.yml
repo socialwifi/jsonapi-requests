@@ -1,10 +1,11 @@
 language: python
 python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
+  - 3.4
+  - 3.5
+  - 3.6
 install:
-  - "pip install -r base_requirements.txt"
-  - "pip install -U pytest==3.0.5"
-  - "pip install flask"
-script: python -m pytest
+  - pip install -r base_requirements.txt
+  - pip install -U pytest==3.0.5
+  - pip install flask
+script:
+  - python -m pytest
