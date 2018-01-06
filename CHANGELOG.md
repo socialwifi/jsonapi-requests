@@ -5,6 +5,7 @@ Changelog for jsonapi-requests
 ------------------
 
 - Added ability to delete a resource. ([#33](https://github.com/socialwifi/jsonapi-requests/pull/33))
+- Allow passing arguments through to get_list. ([#34](https://github.com/socialwifi/jsonapi-requests/pull/34))
 
 
 0.5.0 (2017-12-13)
