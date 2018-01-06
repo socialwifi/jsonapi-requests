@@ -1,5 +1,4 @@
 from jsonapi_requests import data
-from jsonapi_requests.orm import registry
 from jsonapi_requests.orm import repositories
 
 
@@ -142,7 +141,8 @@ class InstanceToManyRelation(BaseInstanceRelation):
             return related
 
     def set(self, values):
-        self.instance.relationships[self.source] = data.Relationship(data=data.List(value.as_identifier() for value in values))
+        self.instance.relationships[self.source] = data.Relationship(data=data.List(
+            value.as_identifier() for value in values))
         self.cache.set_cache(values)
 
     def get_new_related_objects(self):
