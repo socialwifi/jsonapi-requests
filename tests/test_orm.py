@@ -386,6 +386,7 @@ class TestApiModel:
         assert result[1].name == 'alice'
         assert result[0].other.name == 'alice'
 
+
     def test_delete(self):
         mock_api = mock.MagicMock()
         mock_api.endpoint.return_value.delete.return_value.status_code = 204
