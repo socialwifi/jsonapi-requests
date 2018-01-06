@@ -405,3 +405,20 @@ class TestApiModel:
         assert mock_api.endpoint.return_value.delete.call_count == 1
         assert model.id == '123'
         assert model.name == 'alice'
+
+    def test_getting_list_with_params(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = [mock.Mock(
+            type='test', id='123', attributes={'name': 'alice'})]
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        result = Test.get_list(headers={'X-Test': 'test'}, params={'sort': 'name'})
+        mock_api.endpoint.assert_called_with('test')
+        mock_api.endpoint.return_value.get.assert_called_with(headers={'X-Test': 'test'}, params={'sort': 'name'})
+        assert result[0].name == 'alice'
