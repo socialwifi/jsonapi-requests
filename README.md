@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/socialwifi/jsonapi-requests.svg?branch=master)](https://travis-ci.org/socialwifi/jsonapi-requests)
 [![Coverage Status](https://coveralls.io/repos/github/socialwifi/jsonapi-requests/badge.svg)](https://coveralls.io/github/socialwifi/jsonapi-requests)
-[![Latest Version](https://img.shields.io/pypi/v/jsonapi-requests.svg)](https://github.com/socialwifi/jsonapi-requests/blob/master/CHANGELOG.md)
+[![Latest Version](https://img.shields.io/pypi/v/jsonapi-requests.svg)](https://pypi.python.org/pypi/jsonapi-requests/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/jsonapi-requests.svg)](https://pypi.python.org/pypi/jsonapi-requests/)
 [![Wheel Status](https://img.shields.io/pypi/wheel/jsonapi-requests.svg)](https://pypi.python.org/pypi/jsonapi-requests/)
 [![License](https://img.shields.io/pypi/l/jsonapi-requests.svg)](https://github.com/socialwifi/jsonapi-requests/blob/master/LICENSE)
