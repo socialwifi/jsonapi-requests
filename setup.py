@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='jsonapi-requests',
-    version='0.5.1.dev0',
+    version='0.6.0',
     description='Python client implementation for json api. http://jsonapi.org/',
     author='Social WiFi',
     author_email='it@socialwifi.com',

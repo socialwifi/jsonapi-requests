@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.5.1 (unreleased)
+0.6.0 (2018-01-06)
 ------------------
 
 - Added ability to delete a resource. ([#33](https://github.com/socialwifi/jsonapi-requests/pull/33))
