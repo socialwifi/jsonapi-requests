@@ -7,7 +7,7 @@ setup(
     name='jsonapi-requests',
     version='0.5.1.dev0',
     description='Python client implementation for json api. http://jsonapi.org/',
-    author='Jakub Skiepko',
+    author='Social WiFi',
     author_email='it@socialwifi.com',
     url='https://github.com/socialwifi/jsonapi-requests',
     packages=find_packages(exclude=['tests']),
