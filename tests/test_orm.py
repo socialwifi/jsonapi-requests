@@ -5,6 +5,7 @@ from jsonapi_requests import request_factory
 from jsonapi_requests import orm
 
 
+
 class TestApiModel:
     def test_empty_declaration(self):
         class Test(orm.ApiModel):
@@ -105,6 +106,33 @@ class TestApiModel:
 
         test = Test.from_response_content(response_content)
         assert test.other is None
+
+
+    def test_from_response_with_relationship_with_links_only(self):
+        response_content = data.JsonApiResponse(
+            data=data.JsonApiObject(id='1', type='test', relationships={
+                'other': data.Relationship(data=data.ResourceIdentifier(id=None, type=None),
+                                           links=data.Dictionary(self='http://example.org/api/rest/admin/gateway-groups/14/relationships/vendor',
+                                                                 related='http://example.org/api/rest/admin/gateway-groups/14/vendor'
+                                                                )
+#                                           links={'self': 'http://example.org/api/rest/admin/gateway-groups/14/relationships/vendor',
+#                                                 'related': 'http://example.org/api/rest/admin/gateway-groups/14/vendor'}
+                                          )
+            })
+        )
+        orm_api = orm.OrmApi(mock.MagicMock())
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            other = orm.RelationField(source='other')
+            name = orm.AttributeField(source='name')
+
+        test = Test.from_response_content(response_content)
+        #print(type(test.other))
+        assert test.other is None
+
 
     def test_issue_19_attributes_are_readable_with_multiple_relations(self):
         response_content = data.JsonApiResponse(
