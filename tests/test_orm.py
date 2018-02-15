@@ -3,7 +3,7 @@ from unittest import mock
 from jsonapi_requests import data
 from jsonapi_requests import request_factory
 from jsonapi_requests import orm
-
+import inspect
 
 
 class TestApiModel:
@@ -109,18 +109,17 @@ class TestApiModel:
 
 
     def test_from_response_with_relationship_with_links_only(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint().get().data =  data.ResourceIdentifier(type='test', id='159')
         response_content = data.JsonApiResponse(
             data=data.JsonApiObject(id='1', type='test', relationships={
-                'other': data.Relationship(data=data.ResourceIdentifier(id=None, type=None),
-                                           links=data.Dictionary(self='http://example.org/api/rest/admin/gateway-groups/14/relationships/vendor',
-                                                                 related='http://example.org/api/rest/admin/gateway-groups/14/vendor'
+                'other': data.Relationship(links=data.Dictionary(self='http://example.org/api/rest/test/1/relationships/vendor',
+                                                                 related='http://example.org/api/rest/test/1/vendor'
                                                                 )
-#                                           links={'self': 'http://example.org/api/rest/admin/gateway-groups/14/relationships/vendor',
-#                                                 'related': 'http://example.org/api/rest/admin/gateway-groups/14/vendor'}
                                           )
             })
         )
-        orm_api = orm.OrmApi(mock.MagicMock())
+        orm_api = orm.OrmApi(mock_api)
 
         class Test(orm.ApiModel):
             class Meta:
@@ -128,10 +127,9 @@ class TestApiModel:
                 type = 'test'
             other = orm.RelationField(source='other')
             name = orm.AttributeField(source='name')
-
         test = Test.from_response_content(response_content)
-        #print(type(test.other))
-        assert test.other is None
+        assert test.other.type is 'test'
+        assert test.other.id is '159'
 
 
     def test_issue_19_attributes_are_readable_with_multiple_relations(self):
