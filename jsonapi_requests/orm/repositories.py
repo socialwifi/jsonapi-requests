@@ -1,6 +1,7 @@
 import collections
-
 import itertools
+
+from six import string_types
 
 ObjectKey = collections.namedtuple('ObjectKey', ['type', 'id'])
 
@@ -11,7 +12,17 @@ class Repository:
         self.object_map = {}
 
     def add(self, orm_object):
-        self.object_map[ObjectKey(orm_object.type, orm_object.id)] = orm_object
+        obj_type = orm_object.type
+        obj_id = orm_object.id
+
+        if not (isinstance(obj_type, string_types) and isinstance(obj_id, string_types)):
+            error_msg = ' object type: {} or object id: {} is not of type string'.format(
+                type(obj_type), 
+                type(obj_id),
+            )
+            raise ValueError(error_msg)
+
+        self.object_map[ObjectKey(obj_type, obj_id)] = orm_object
 
     def __getitem__(self, object_key):
         return self.object_map[object_key]
