@@ -1,8 +1,9 @@
 language: python
 python:
-  - 3.4
   - 3.5
   - 3.6
+  - 3.7
+  - 3.8
 install:
   - pip install -r base_requirements.txt
   - pip install -U pytest==3.0.5 pytest-cov coveralls flake8
