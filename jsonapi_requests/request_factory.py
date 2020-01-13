@@ -26,7 +26,7 @@ class ApiRequestFactory:
     def patch(self, api_path, **kwargs):
         return self.request(api_path, 'PATCH', **kwargs)
 
-    def request(self, api_path, method, *, object: data.JsonApiObject=None, **kwargs):
+    def request(self, api_path, method, *, object: data.JsonApiObject = None, **kwargs):
         url = self._build_absolute_url(api_path)
         if object is not None:
             assert 'json' not in kwargs

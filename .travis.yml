@@ -6,7 +6,7 @@ python:
   - 3.8
 install:
   - pip install -r base_requirements.txt
-  - pip install -U pytest==3.0.5 pytest-cov coveralls flake8
+  - pip install -U pytest pytest-cov coveralls flake8
   - pip install flask
 script:
   - flake8 .
