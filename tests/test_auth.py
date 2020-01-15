@@ -28,9 +28,9 @@ def valid_response():
 
 
 @pytest.fixture
-def request_send_mock():
+def request_send_mock(valid_response):
     with mock.patch('requests.sessions.Session.send') as mocked:
-        mocked.return_value = valid_response()
+        mocked.return_value = valid_response
         yield mocked
 
 

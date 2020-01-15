@@ -48,7 +48,7 @@ which returns
 ```json
 {
     "data":{
-        "id": 2,
+        "id": "2",
         "type": "car",
         "attributes": {
             "color": "red"
@@ -56,7 +56,7 @@ which returns
         "relationships": {
             "driver": {
                 "data": {
-                    "id": 3, 
+                    "id": "3", 
                     "type": "person"
                 }
             }
@@ -64,7 +64,7 @@ which returns
     },
     "included": [
         {
-            "id": 3,
+            "id": "3",
             "type": "person",
             "attributes": {
                 "name": "Kowalski"
@@ -72,14 +72,14 @@ which returns
             "relationships": {
                 "married-to": {
                     "data": {
-                        "id": 4, 
+                        "id": "4", 
                         "type": "person"
                     }
                 }
             }
         },
         {
-            "id": 4,
+            "id": "4",
             "type": "person",
             "attributes": {
                 "name": "Kowalska"
@@ -87,7 +87,7 @@ which returns
             "relationships": {
                 "married-to": {
                     "data": {
-                        "id": 3, 
+                        "id": "3", 
                         "type": "person"
                     }
                 }
@@ -125,7 +125,7 @@ class Car(jsonapi_requests.orm.ApiModel):
     color = jsonapi_requests.orm.AttributeField('color')
     driver = jsonapi_requests.orm.RelationField('driver')
 
-car = Car.from_id(2)
+car = Car.from_id("2")
 
 car.color # request happens here
 # Example output: 'red'
