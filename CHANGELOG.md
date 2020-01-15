@@ -4,7 +4,12 @@ Changelog for jsonapi-requests
 0.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added Python 3.7 and Python 3.8 support. ([#47](https://github.com/socialwifi/jsonapi-requests/pull/47))
+- Dropped Python 3.4 support. ([#47](https://github.com/socialwifi/jsonapi-requests/pull/47))
+- Fixed `id` type in documentation. 
+([#47](https://github.com/socialwifi/jsonapi-requests/pull/47))
+([#46](https://github.com/socialwifi/jsonapi-requests/issues/46))
+- Added long description to package (for pypi description page). ([#48](https://github.com/socialwifi/jsonapi-requests/pull/48))
 
 
 0.6.0 (2018-01-06)
