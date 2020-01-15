@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.6.1 (unreleased)
+0.6.1 (2020-01-15)
 ------------------
 
 - Added Python 3.7 and Python 3.8 support. ([#47](https://github.com/socialwifi/jsonapi-requests/pull/47))
