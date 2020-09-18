@@ -14,7 +14,7 @@ def get_long_description():
 
 setup(
     name='jsonapi-requests',
-    version='0.6.2.dev0',
+    version='0.6.2',
     description='Python client implementation for json api. http://jsonapi.org/',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',

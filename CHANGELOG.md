@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.6.2 (unreleased)
+0.6.2 (2020-09-18)
 ------------------
 
 - Rewrite setup.py so that it doesn't depend on pip.
