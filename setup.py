@@ -1,9 +1,10 @@
-try:
-    from pip._internal.req import parse_requirements
-except ImportError:
-    from pip.req import parse_requirements
 from setuptools import find_packages
 from setuptools import setup
+
+
+def parse_requirements(filename):
+    with open(filename) as requirements_file:
+        return requirements_file.readlines()
 
 
 def get_long_description():
@@ -21,7 +22,7 @@ setup(
     author_email='it@socialwifi.com',
     url='https://github.com/socialwifi/jsonapi-requests',
     packages=find_packages(exclude=['tests']),
-    install_requires=[str(ir.req) for ir in parse_requirements('base_requirements.txt', session=False)],
+    install_requires=parse_requirements('base_requirements.txt'),
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'flask'],
     extras_require={
