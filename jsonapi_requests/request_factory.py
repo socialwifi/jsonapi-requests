@@ -31,7 +31,7 @@ class ApiRequestFactory:
         if object is not None:
             assert 'json' not in kwargs
             kwargs['json'] = {'data': object.as_data()}
-        return self.retrying.call(self._request, url, method, **kwargs)
+        return self.retrying.__call__(self._request, url, method, **kwargs)
 
     @property
     def retrying(self):
