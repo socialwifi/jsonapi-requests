@@ -1,2 +1,2 @@
 requests
-tenacity
+tenacity==7.0.0
