@@ -1,11 +1,13 @@
 Changelog for jsonapi-requests
 =================
 
-0.6.3 (unreleased)
+0.7.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Dropped Python 3.5, 3.6, 3.7 support (EOL or almost EOL).
+- Added Python 3.9, 3.10, 3.11 support.
+- Fix usage of deprecated tenacity api ([#54](https://github.com/socialwifi/jsonapi-requests/pull/54)).
+- Fix `__all__` usage ([#49](https://github.com/socialwifi/jsonapi-requests/pull/49)).
 
 0.6.2 (2020-09-18)
 ------------------
