@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.7.0 (unreleased)
+0.7.0 (2022-11-30)
 ------------------
 
 - Dropped Python 3.5, 3.6, 3.7 support (EOL or almost EOL).
