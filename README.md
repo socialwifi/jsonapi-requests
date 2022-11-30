@@ -1,6 +1,6 @@
 # jsonapi-requests
 
-[![Build Status](https://travis-ci.org/socialwifi/jsonapi-requests.svg?branch=master)](https://travis-ci.org/socialwifi/jsonapi-requests)
+[![Build Status](https://app.travis-ci.com/socialwifi/jsonapi-requests.svg?branch=master)](https://app.travis-ci.com/socialwifi/jsonapi-requests)
 [![Coverage Status](https://coveralls.io/repos/github/socialwifi/jsonapi-requests/badge.svg)](https://coveralls.io/github/socialwifi/jsonapi-requests)
 [![Latest Version](https://img.shields.io/pypi/v/jsonapi-requests.svg)](https://pypi.python.org/pypi/jsonapi-requests/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/jsonapi-requests.svg)](https://pypi.python.org/pypi/jsonapi-requests/)
