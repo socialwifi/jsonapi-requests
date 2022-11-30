@@ -106,6 +106,30 @@ class TestApiModel:
         test = Test.from_response_content(response_content)
         assert test.other is None
 
+    def test_from_response_with_relationship_with_links_only(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint().get().data = data.ResourceIdentifier(type='test', id='159')
+        response_content = data.JsonApiResponse(
+            data=data.JsonApiObject(id='1', type='test', relationships={
+                'other': data.Relationship(links=data.Dictionary(self='http://example.org/api/rest/test/1/relationships'
+                                                                      '/vendor',
+                                                                 related='http://example.org/api/rest/test/1/vendor'
+                                                                 )
+                                           )
+            })
+        )
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            other = orm.RelationField(source='other')
+            name = orm.AttributeField(source='name')
+        test = Test.from_response_content(response_content)
+        assert test.other.type is 'test'
+        assert test.other.id is '159'
+
     def test_issue_19_attributes_are_readable_with_multiple_relations(self):
         response_content = data.JsonApiResponse(
             data=data.JsonApiObject(
