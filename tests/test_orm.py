@@ -1,5 +1,7 @@
 from unittest import mock
 
+import pytest
+
 from jsonapi_requests import data
 from jsonapi_requests import request_factory
 from jsonapi_requests import orm
@@ -26,6 +28,22 @@ class TestApiModel:
         test.refresh()
         mock_api.endpoint.assert_called_with('test/123')
         assert test.name == 'alice'
+
+    def test_refresh_with_empty_id(self):
+        mock_api = mock.MagicMock()
+        mock_api.endpoint.return_value.get.return_value.content.data = data.JsonApiObject(
+            type='test', id='123', attributes={'name': 'alice'})
+        orm_api = orm.OrmApi(mock_api)
+
+        class Test(orm.ApiModel):
+            class Meta:
+                api = orm_api
+                type = 'test'
+            name = orm.AttributeField(source='name')
+
+        with pytest.raises(AssertionError):
+            test = Test.from_id('')
+            test.refresh()
 
     def test_refresh_custom_path(self):
         mock_api = mock.MagicMock()

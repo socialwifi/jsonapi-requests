@@ -79,6 +79,7 @@ class ApiModel(metaclass=ApiModelMetaclass):
 
     @classmethod
     def from_id(cls, id):
+        assert id
         return cls(raw_object=JsonApiObjectStub(id))
 
     @classmethod
@@ -148,6 +149,7 @@ class ApiModel(metaclass=ApiModelMetaclass):
     def refresh(self):
         api_response = self.endpoint.get()
         jsonapi_response = api_response.content
+        assert self.id
         assert jsonapi_response.data.type == self.type
         assert jsonapi_response.data.id == self.id
         repository = repositories.Repository(self._options.api.type_registry)
