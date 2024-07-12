@@ -4,7 +4,10 @@ Changelog for jsonapi-requests
 0.7.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Check if ID is given for object ([#60](https://github.com/socialwifi/jsonapi-requests/pull/60)).
+- Dropped Python 3.8 support.
+- Added Python 3.12 support.
+- Switch to running tests with GitHub Actions.
 
 
 0.7.0 (2022-11-30)
