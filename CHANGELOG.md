@@ -1,6 +1,12 @@
 Changelog for jsonapi-requests
 =================
 
+## 0.8.1 (unreleased)
+---------------------
+
+- Nothing changed yet.
+
+
 ## 0.8.0 (2024-07-12)
 ------------------
 
