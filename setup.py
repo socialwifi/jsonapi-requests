@@ -23,8 +23,6 @@ setup(
     url='https://github.com/socialwifi/jsonapi-requests',
     packages=find_packages(exclude=['tests']),
     install_requires=parse_requirements('base_requirements.txt'),
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'flask'],
     extras_require={
         'flask': ['flask']
     },
@@ -37,9 +35,9 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ]
 )
