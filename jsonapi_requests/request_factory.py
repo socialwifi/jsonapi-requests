@@ -42,7 +42,7 @@ class ApiRequestFactory:
         return tenacity.Retrying(
             reraise=True,
             retry=retry_condition,
-            stop=tenacity.stop_after_attempt(self.config.RETRIES)
+            stop=tenacity.stop_after_attempt(self.config.RETRIES),
         )
 
     def _build_absolute_url(self, api_path):
@@ -68,7 +68,7 @@ class ApiRequestFactory:
             'headers': {
                 'Content-Type': 'application/vnd.api+json',
                 'Accept': 'application/vnd.api+json',
-            }
+            },
         }
 
     @property

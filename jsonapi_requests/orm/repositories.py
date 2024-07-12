@@ -1,5 +1,4 @@
 import collections
-
 import itertools
 
 ObjectKey = collections.namedtuple('ObjectKey', ['type', 'id'])

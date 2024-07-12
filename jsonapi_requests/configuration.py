@@ -1,9 +1,8 @@
 from collections import namedtuple
 
-
 Configuration = namedtuple(
     'Configuration',
-    ['API_ROOT', 'AUTH', 'VALIDATE_SSL', 'TIMEOUT', 'APPEND_SLASH', 'RETRIES']
+    ['API_ROOT', 'AUTH', 'VALIDATE_SSL', 'TIMEOUT', 'APPEND_SLASH', 'RETRIES'],
 )
 
 

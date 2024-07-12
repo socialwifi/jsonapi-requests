@@ -1,10 +1,11 @@
-import pytest
-import requests
 from unittest import mock
 
-from jsonapi_requests import request_factory
-from jsonapi_requests import data
+import pytest
+import requests
+
 from jsonapi_requests import configuration
+from jsonapi_requests import data
+from jsonapi_requests import request_factory
 
 
 @pytest.fixture

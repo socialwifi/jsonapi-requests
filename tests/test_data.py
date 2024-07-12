@@ -37,7 +37,7 @@ class TestJsonApiResponse:
 
     def test_remove_relationship_from_parsed_response(self):
         parsed = jsonapi_requests.data.JsonApiResponse.from_data(
-          {'data': {'relationships': {'chicken': {'data': {'type': 'chicken', 'id': '2'}}}}}
+          {'data': {'relationships': {'chicken': {'data': {'type': 'chicken', 'id': '2'}}}}},
         )
         del parsed.data.relationships['chicken']
         assert parsed.as_data() == {}
@@ -47,36 +47,36 @@ example_response = {
   "links": {
     "self": "http://example.com/articles",
     "next": "http://example.com/articles?page[offset]=2",
-    "last": "http://example.com/articles?page[offset]=10"
+    "last": "http://example.com/articles?page[offset]=10",
   },
   "data": [{
     "type": "articles",
     "id": "1",
     "attributes": {
-      "title": "JSON API paints my bikeshed!"
+      "title": "JSON API paints my bikeshed!",
     },
     "relationships": {
       "author": {
         "links": {
           "self": "http://example.com/articles/1/relationships/author",
-          "related": "http://example.com/articles/1/author"
+          "related": "http://example.com/articles/1/author",
         },
-        "data": {"type": "people", "id": "9"}
+        "data": {"type": "people", "id": "9"},
       },
       "comments": {
         "links": {
           "self": "http://example.com/articles/1/relationships/comments",
-          "related": "http://example.com/articles/1/comments"
+          "related": "http://example.com/articles/1/comments",
         },
         "data": [
           {"type": "comments", "id": "5"},
-          {"type": "comments", "id": "12"}
-        ]
-      }
+          {"type": "comments", "id": "12"},
+        ],
+      },
     },
     "links": {
-      "self": "http://example.com/articles/1"
-    }
+      "self": "http://example.com/articles/1",
+    },
   }],
   "included": [{
     "type": "people",
@@ -84,38 +84,38 @@ example_response = {
     "attributes": {
       "first-name": "Dan",
       "last-name": "Gebhardt",
-      "twitter": "dgeb"
+      "twitter": "dgeb",
     },
     "links": {
-      "self": "http://example.com/people/9"
-    }
+      "self": "http://example.com/people/9",
+    },
   }, {
     "type": "comments",
     "id": "5",
     "attributes": {
-      "body": "First!"
+      "body": "First!",
     },
     "relationships": {
       "author": {
-        "data": {"type": "people", "id": "2"}
-      }
+        "data": {"type": "people", "id": "2"},
+      },
     },
     "links": {
-      "self": "http://example.com/comments/5"
-    }
+      "self": "http://example.com/comments/5",
+    },
   }, {
     "type": "comments",
     "id": "12",
     "attributes": {
-      "body": "I like XML better"
+      "body": "I like XML better",
     },
     "relationships": {
       "author": {
-        "data": {"type": "people", "id": "9"}
-      }
+        "data": {"type": "people", "id": "9"},
+      },
     },
     "links": {
-      "self": "http://example.com/comments/12"
-    }
-  }]
+      "self": "http://example.com/comments/12",
+    },
+  }],
 }

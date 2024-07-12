@@ -24,7 +24,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     install_requires=parse_requirements('base_requirements.txt'),
     extras_require={
-        'flask': ['flask']
+        'flask': ['flask'],
     },
     license='BSD',
     classifiers=[
@@ -39,5 +39,5 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
-    ]
+    ],
 )

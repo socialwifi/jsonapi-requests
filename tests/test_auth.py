@@ -4,8 +4,8 @@ import pytest
 
 from flask import Flask
 
-from jsonapi_requests import configuration
 from jsonapi_requests import auth
+from jsonapi_requests import configuration
 from jsonapi_requests import request_factory
 
 
