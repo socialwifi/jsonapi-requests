@@ -26,6 +26,7 @@ setup(
     extras_require={
         'flask': ['flask'],
     },
+    python_requires='>=3.9',
     license='BSD',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
