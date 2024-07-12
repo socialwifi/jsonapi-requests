@@ -79,6 +79,7 @@ class ApiModel(metaclass=ApiModelMetaclass):
 
     @classmethod
     def from_id(cls, id):
+        validate_id_required(id)
         return cls(raw_object=JsonApiObjectStub(id))
 
     @classmethod
@@ -146,6 +147,7 @@ class ApiModel(metaclass=ApiModelMetaclass):
         return data.ResourceIdentifier(type=self.type, id=self.id)
 
     def refresh(self):
+        validate_id_required(self.id)
         api_response = self.endpoint.get()
         jsonapi_response = api_response.content
         assert jsonapi_response.data.type == self.type
@@ -183,3 +185,8 @@ class ApiModel(metaclass=ApiModelMetaclass):
         return self._options.api.endpoint('{}/{}'.format(self.endpoint_path(), self.id))
 
     _options = Options(None, None, {}, None)
+
+
+def validate_id_required(object_id):
+    if not object_id:
+        raise request_factory.ApiRequestError('ID is required')
