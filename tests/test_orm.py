@@ -30,14 +30,8 @@ class TestApiModel:
         assert test.name == 'alice'
 
     def test_refresh_with_empty_id(self):
-        mock_api = mock.MagicMock()
-        mock_api.endpoint.return_value.get.return_value.content.data = data.JsonApiObject(
-            type='test', id='123', attributes={'name': 'alice'})
-        orm_api = orm.OrmApi(mock_api)
-
         class Test(orm.ApiModel):
             class Meta:
-                api = orm_api
                 type = 'test'
             name = orm.AttributeField(source='name')
 
