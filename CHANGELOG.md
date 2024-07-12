@@ -1,7 +1,7 @@
 Changelog for jsonapi-requests
 =================
 
-0.7.1 (unreleased)
+## 0.8.0 (2024-07-12)
 ------------------
 
 - Check if ID is given for object ([#60](https://github.com/socialwifi/jsonapi-requests/pull/60)).
