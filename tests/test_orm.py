@@ -41,7 +41,7 @@ class TestApiModel:
                 type = 'test'
             name = orm.AttributeField(source='name')
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(request_factory.ApiRequestError):
             test = Test.from_id('')
             test.refresh()
 
