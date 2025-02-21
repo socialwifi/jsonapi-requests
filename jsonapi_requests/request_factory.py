@@ -36,8 +36,8 @@ class ApiRequestFactory:
     @property
     def retrying(self):
         retry_condition = (
-            tenacity.retry_if_exception_type(ApiConnectionError)
-            | tenacity.retry_if_exception_type(ApiInternalServerError)
+            tenacity.retry_if_exception_type(ApiConnectionError) |
+            tenacity.retry_if_exception_type(ApiInternalServerError)
         )
         return tenacity.Retrying(
             reraise=True,

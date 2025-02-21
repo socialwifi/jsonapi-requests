@@ -124,7 +124,14 @@ class InstanceToOneRelation(BaseInstanceRelation):
         except KeyError:
             raise ObjectKeyError
         else:
-            data = relationship.data
+            data = None
+            if (hasattr(relationship, 'data') and relationship.data.as_data() != {}) or relationship.as_data() == {}:
+                data = relationship.data
+            elif hasattr(relationship, 'links') and relationship.links != {}:
+                res = self.instance._options.api.endpoint(path=relationship.links.as_data()['self'])
+                relationship_data = res.get()
+                data = relationship_data.data
+
             if data.type is None or data.id is None:
                 raise ObjectKeyError
             else:
